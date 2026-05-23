@@ -1,0 +1,47 @@
+<aside class="sidebar" [class.sidebar--collapsed]="isCollapsed" [class.sidebar--mobile-open]="isMobileOpen">
+    <div class="sidebar__top">
+        <button type="button" class="sidebar__brand" (click)="navigate('/app')">
+            <div class="sidebar__brand-logo">
+                JH
+            </div>
+
+            <div class="sidebar__brand-content" *ngIf="!isCollapsed">
+                <h2>Job Hunt OS</h2>
+                <p>Career Workflow System</p>
+            </div>
+        </button>
+
+        <button type="button" class="sidebar__toggle" (click)="toggleSidebar()" aria-label="Toggle sidebar">
+            <span class="material-symbols-outlined">
+                menu
+            </span>
+        </button>
+    </div>
+
+    <nav class="sidebar__navigation">
+        <a *ngFor="let item of navigationItems" [routerLink]="item.route" routerLinkActive="sidebar__nav-item--active"
+            [routerLinkActiveOptions]="{
+        exact: item.route === '/app'
+      }" class="sidebar__nav-item" (click)="navigate(item.route)">
+            <span class="material-symbols-outlined sidebar__nav-icon">
+                {{ item.icon }}
+            </span>
+
+            <span class="sidebar__nav-label" *ngIf="!isCollapsed">
+                {{ item.label }}
+            </span>
+        </a>
+    </nav>
+
+    <div class="sidebar__footer">
+        <button type="button" class="sidebar__logout" (click)="logout()">
+            <span class="material-symbols-outlined">
+                logout
+            </span>
+
+            <span *ngIf="!isCollapsed">
+                Logout
+            </span>
+        </button>
+    </div>
+</aside>

@@ -1,0 +1,22 @@
+<div class="dashboard-layout" [class.dashboard-layout--sidebar-collapsed]="
+    isSidebarCollapsed
+  " [class.dashboard-layout--mobile-sidebar-open]="
+    isMobileSidebarOpen
+  ">
+    <div class="dashboard-layout__overlay" *ngIf="isMobileSidebarOpen" (click)="closeMobileSidebar()"></div>
+
+    <aside class="dashboard-layout__sidebar">
+        <app-sidebar [isCollapsed]="isSidebarCollapsed" [isMobileOpen]="isMobileSidebarOpen"
+            (sidebarToggle)="toggleSidebar()" (mobileClose)="closeMobileSidebar()" />
+    </aside>
+
+    <div class="dashboard-layout__main">
+        <header class="dashboard-layout__topbar">
+            <app-topbar [isSidebarCollapsed]="isSidebarCollapsed" (menuToggle)="toggleSidebar()" />
+        </header>
+
+        <main class="dashboard-layout__content">
+            <router-outlet />
+        </main>
+    </div>
+</div>
