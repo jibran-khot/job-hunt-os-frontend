@@ -8,8 +8,8 @@ import {
 import { CommonModule } from '@angular/common';
 import { RouterOutlet } from '@angular/router';
 
-import { SidebarComponent } from '../../shared/layout/sidebar/sidebar.component';
-import { TopbarComponent } from '../../shared/layout/topbar/topbar.component';
+import { TopbarComponent } from './components/topbar/topbar.component';
+import { SidebarComponent } from '../sidebar/sidebar.component';
 
 @Component({
     selector: 'app-dashboard-layout',

@@ -1,0 +1,46 @@
+<div class="input" [class.input--focused]="isFocused()" [class.input--disabled]="isDisabled() || disabled()"
+    [class.input--error]="shouldShowError()">
+    <label *ngIf="label()" class="input__label" [attr.for]="inputId()">
+        <span class="input__label-text">
+            {{ label() }}
+        </span>
+
+        <span *ngIf="required()" class="input__required-indicator">
+            *
+        </span>
+    </label>
+
+    <div class="input__field-wrapper">
+        <input class="input__field" [id]="inputId()" [type]="getInputType()" [value]="value()"
+            [placeholder]="placeholder()" [readonly]="readonly()" [required]="required()"
+            [disabled]="isDisabled() || disabled()" [autocomplete]="autocomplete()" [attr.maxlength]="maxLength()"
+            [attr.minlength]="minLength()" [attr.aria-invalid]="shouldShowError()" [attr.aria-describedby]="
+        helperText()
+          ? inputId() + '-helper'
+          : null
+      " (input)="onInput($event)" (blur)="onBlur()" (focus)="onFocus()" />
+
+        <button *ngIf="shouldShowPasswordToggle()" type="button" class="input__password-toggle"
+            [disabled]="isDisabled() || disabled()" (click)="togglePasswordVisibility()">
+            <span class="material-symbols-outlined">
+                {{
+                isPasswordVisible()
+                ? 'visibility_off'
+                : 'visibility'
+                }}
+            </span>
+        </button>
+    </div>
+
+    <div *ngIf="helperText() || maxLength()" class="input__footer">
+        <p *ngIf="helperText()" class="input__helper-text" [id]="inputId() + '-helper'">
+            {{ helperText() }}
+        </p>
+
+        <span *ngIf="maxLength()" class="input__character-count">
+            {{ getCharacterCount() }}/{{ maxLength() }}
+        </span>
+    </div>
+
+    <app-validation-message *ngIf="control() && shouldShowError()" [control]="control()" />
+</div>

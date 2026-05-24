@@ -1,0 +1,44 @@
+<div class="select" [class.select--focused]="isFocused()" [class.select--disabled]="isDisabled() || disabled()"
+    [class.select--error]="shouldShowError()">
+    <label *ngIf="label()" class="select__label" [attr.for]="selectId()">
+        <span class="select__label-text">
+            {{ label() }}
+        </span>
+
+        <span *ngIf="required()" class="select__required-indicator">
+            *
+        </span>
+    </label>
+
+    <div class="select__field-wrapper">
+        <select class="select__field" [id]="selectId()" [required]="required()" [disabled]="isDisabled() || disabled()"
+            [attr.aria-invalid]="shouldShowError()" [attr.aria-describedby]="
+        helperText()
+          ? selectId() + '-helper'
+          : null
+      " (change)="onSelectChange($event)" (focus)="onFocus()" (blur)="onBlur()">
+            <option value="" [selected]="value() === null" disabled>
+                {{ placeholder() }}
+            </option>
+
+            <option *ngFor="
+          let option of options();
+          trackBy: trackByOptionValue
+        " [value]="option.value" [selected]="isSelectedOption(option)" [disabled]="option.disabled">
+                {{ option.label }}
+            </option>
+        </select>
+
+        <span class="select__icon material-symbols-outlined">
+            expand_more
+        </span>
+    </div>
+
+    <div *ngIf="helperText()" class="select__footer">
+        <p class="select__helper-text" [id]="selectId() + '-helper'">
+            {{ helperText() }}
+        </p>
+    </div>
+
+    <app-validation-message *ngIf="control() && shouldShowError()" [control]="control()" />
+</div>

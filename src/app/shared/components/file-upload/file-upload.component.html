@@ -1,0 +1,88 @@
+<div class="file-upload" [class.file-upload--disabled]="disabled">
+    <label *ngIf="label" class="file-upload__label">
+        {{ label }}
+
+        <span *ngIf="required" class="file-upload__required">
+            *
+        </span>
+    </label>
+
+    <div class="file-upload__dropzone" [class.file-upload__dropzone--dragover]="isDragOver"
+        [class.file-upload__dropzone--has-files]="hasFiles" [class.file-upload__dropzone--disabled]="disabled"
+        (dragover)="onDragOver($event)" (dragleave)="onDragLeave($event)" (drop)="onDrop($event)">
+        <input #fileInput type="file" class="file-upload__input" [accept]="accept" [multiple]="multiple"
+            [disabled]="disabled" (change)="onFileSelect($event)" />
+
+        <div class="file-upload__content">
+            <div class="file-upload__icon">
+                <svg viewBox="0 0 24 24" fill="none" aria-hidden="true">
+                    <path d="M12 16V4" stroke="currentColor" stroke-width="2" stroke-linecap="round"></path>
+
+                    <path d="M7 9L12 4L17 9" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                        stroke-linejoin="round"></path>
+
+                    <path d="M5 20H19" stroke="currentColor" stroke-width="2" stroke-linecap="round"></path>
+                </svg>
+            </div>
+
+            <div class="file-upload__text">
+                <p class="file-upload__title">
+                    Drag & drop files here
+                </p>
+
+                <p class="file-upload__subtitle">
+                    or click to browse files
+                </p>
+            </div>
+
+            <button type="button" class="file-upload__browse-button" [disabled]="disabled" (click)="fileInput.click()">
+                Browse Files
+            </button>
+        </div>
+    </div>
+
+    <p *ngIf="helperText" class="file-upload__helper-text">
+        {{ helperText }}
+    </p>
+
+    <div *ngIf="errorMessage" class="file-upload__validation-message" role="alert" aria-live="polite">
+        {{ errorMessage }}
+    </div>
+
+    <div *ngIf="hasFiles" class="file-upload__preview-list">
+        <div *ngFor="let uploadedFile of uploadedFiles; let i = index; trackBy: trackByFileName"
+            class="file-upload__preview-card">
+            <div class="file-upload__preview-content">
+
+                <div *ngIf="uploadedFile.previewUrl" class="file-upload__image-preview">
+                    <img [src]="uploadedFile.previewUrl" [alt]="uploadedFile.name" class="file-upload__image" />
+                </div>
+
+                <div *ngIf="!uploadedFile.previewUrl" class="file-upload__file-icon">
+                    <svg viewBox="0 0 24 24" fill="none" aria-hidden="true">
+                        <path
+                            d="M14 2H7C5.89543 2 5 2.89543 5 4V20C5 21.1046 5.89543 22 7 22H17C18.1046 22 19 21.1046 19 20V7L14 2Z"
+                            stroke="currentColor" stroke-width="2" stroke-linejoin="round"></path>
+
+                        <path d="M14 2V7H19" stroke="currentColor" stroke-width="2" stroke-linejoin="round"></path>
+                    </svg>
+                </div>
+
+                <div class="file-upload__file-details">
+                    <p class="file-upload__file-name">
+                        {{ uploadedFile.name }}
+                    </p>
+
+                    <p class="file-upload__file-size">
+                        {{ (uploadedFile.size / 1024 / 1024).toFixed(2) }} MB
+                    </p>
+                </div>
+            </div>
+
+            <button type="button" class="file-upload__remove-button" [disabled]="disabled"
+                aria-label="Remove uploaded file" (click)="removeFile(i)">
+                &times;
+            </button>
+        </div>
+    </div>
+</div>
