@@ -1,0 +1,19 @@
+<div class="error-state" [class.error-state--centered]="centered" role="alert" aria-live="assertive">
+    <div class="error-state__icon" aria-hidden="true">
+        {{ icon }}
+    </div>
+
+    <div class="error-state__content">
+        <h2 class="error-state__title">
+            {{ title }}
+        </h2>
+
+        <p class="error-state__message">
+            {{ message }}
+        </p>
+    </div>
+
+    <button *ngIf="showRetryAction" type="button" class="error-state__action" (click)="retry()">
+        {{ actionLabel }}
+    </button>
+</div>

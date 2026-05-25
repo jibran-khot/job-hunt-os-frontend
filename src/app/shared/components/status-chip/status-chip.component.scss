@@ -1,0 +1,93 @@
+:host {
+  display: inline-flex;
+}
+
+.status-chip {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  min-height: 2rem;
+  padding: 0.45rem 0.875rem;
+  border-radius: 9999px;
+  font-size: 0.8125rem;
+  font-weight: 600;
+  line-height: 1;
+  white-space: nowrap;
+  transition:
+    background-color 0.2s ease,
+    border-color 0.2s ease,
+    color 0.2s ease,
+    transform 0.2s ease;
+}
+
+.status-chip--compact {
+  min-height: 1.625rem;
+  padding: 0.325rem 0.625rem;
+  font-size: 0.75rem;
+}
+
+.status-chip--outlined {
+  border: 1px solid currentColor;
+  background-color: transparent !important;
+}
+
+.status-chip__icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.875rem;
+  line-height: 1;
+}
+
+.status-chip__label {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.status-chip--default {
+  background-color: #e2e8f0;
+  color: #334155;
+}
+
+.status-chip--success {
+  background-color: #dcfce7;
+  color: #166534;
+}
+
+.status-chip--warning {
+  background-color: #fef3c7;
+  color: #92400e;
+}
+
+.status-chip--danger {
+  background-color: #fee2e2;
+  color: #991b1b;
+}
+
+.status-chip--info {
+  background-color: #dbeafe;
+  color: #1d4ed8;
+}
+
+.status-chip--neutral {
+  background-color: #e5e7eb;
+  color: #4b5563;
+}
+
+.status-chip:hover {
+  transform: translateY(-1px);
+}
+
+@media (max-width: 640px) {
+  .status-chip {
+    padding: 0.4rem 0.75rem;
+    font-size: 0.75rem;
+  }
+
+  .status-chip--compact {
+    padding: 0.3rem 0.55rem;
+    font-size: 0.6875rem;
+  }
+}

@@ -1,0 +1,25 @@
+<div class="search-box">
+    <div class="search-box__input-wrapper">
+        <span class="search-box__icon" aria-hidden="true">
+            🔍
+        </span>
+
+        <input type="text" class="search-box__input" [formControl]="searchControl" [placeholder]="placeholder"
+            [disabled]="disabled" autocomplete="off" spellcheck="false" aria-label="Search input"
+            (keyup.enter)="onSearch()" />
+
+        <div class="search-box__actions">
+            <div *ngIf="loading" class="search-box__loader" aria-hidden="true">
+                <span class="search-box__loader-spinner"></span>
+            </div>
+
+            <button *ngIf="
+          showClearButton &&
+          searchControl.value &&
+          !loading
+        " type="button" class="search-box__clear-button" aria-label="Clear search" (click)="clearSearch()">
+                ✕
+            </button>
+        </div>
+    </div>
+</div>

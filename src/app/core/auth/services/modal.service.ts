@@ -28,9 +28,10 @@ export interface ModalConfig<TData = unknown> {
 export interface ConfirmationModalConfig {
     title: string;
     message: string;
-    confirmText?: string;
-    cancelText?: string;
-    destructive?: boolean;
+    confirmButtonText?: string;
+    cancelButtonText?: string;
+    isDestructive?: boolean;
+    closeOnBackdropClick?: boolean;
 }
 
 interface ModalState {

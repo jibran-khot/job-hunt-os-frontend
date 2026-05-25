@@ -1,0 +1,10 @@
+<div class="status-chip" [class.status-chip--compact]="compact" [class.status-chip--outlined]="outlined"
+    [ngClass]="getStatusClass()" role="status">
+    <span *ngIf="icon" class="status-chip__icon" aria-hidden="true">
+        {{ icon }}
+    </span>
+
+    <span class="status-chip__label">
+        {{ displayLabel }}
+    </span>
+</div>

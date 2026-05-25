@@ -1,0 +1,60 @@
+<div class="page-header" [class.page-header--centered]="centered" [class.page-header--with-divider]="showDivider">
+    <div class="page-header__content">
+        <nav *ngIf="breadcrumbs.length" class="page-header__breadcrumbs" aria-label="Breadcrumb">
+            <ol class="page-header__breadcrumb-list">
+                <li *ngFor="
+            let breadcrumb of breadcrumbs;
+            let last = last;
+            trackBy: trackByBreadcrumb
+          " class="page-header__breadcrumb-item">
+                    <a *ngIf="breadcrumb.route && !last" class="page-header__breadcrumb-link" [href]="breadcrumb.route">
+                        {{ breadcrumb.label }}
+                    </a>
+
+                    <span *ngIf="!breadcrumb.route || last" class="page-header__breadcrumb-current"
+                        [attr.aria-current]="last ? 'page' : null">
+                        {{ breadcrumb.label }}
+                    </span>
+
+                    <span *ngIf="!last" class="page-header__breadcrumb-separator" aria-hidden="true">
+                        /
+                    </span>
+                </li>
+            </ol>
+        </nav>
+
+        <div class="page-header__title-section">
+            <h1 class="page-header__title">
+                {{ title }}
+            </h1>
+
+            <p *ngIf="subtitle" class="page-header__subtitle">
+                {{ subtitle }}
+            </p>
+        </div>
+    </div>
+
+    <div *ngIf="actions.length" class="page-header__actions">
+        <button *ngFor="
+        let action of actions;
+        trackBy: trackByAction
+      " type="button" class="page-header__action-button" [disabled]="action.disabled" [ngClass]="{
+        'page-header__action-button--primary':
+          action.variant === 'primary',
+        'page-header__action-button--secondary':
+          action.variant === 'secondary',
+        'page-header__action-button--danger':
+          action.variant === 'danger',
+        'page-header__action-button--ghost':
+          action.variant === 'ghost'
+      }" (click)="emitAction(action)">
+            <span *ngIf="action.icon" class="page-header__action-icon" aria-hidden="true">
+                {{ action.icon }}
+            </span>
+
+            <span class="page-header__action-label">
+                {{ action.label }}
+            </span>
+        </button>
+    </div>
+</div>
