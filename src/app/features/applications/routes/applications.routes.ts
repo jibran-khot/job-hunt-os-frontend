@@ -5,7 +5,7 @@ export const applicationsRoutes: Routes = [
         path: '',
         loadComponent: () =>
             import(
-                './pages/applications-list/applications-list.component'
+                '../pages/applications-list/applications-list.component'
             ).then(
                 (component) =>
                     component.ApplicationsListComponent
@@ -15,30 +15,30 @@ export const applicationsRoutes: Routes = [
         path: 'create',
         loadComponent: () =>
             import(
-                './pages/create-application/create-application.component'
+                '../pages/create-application/create-application.component'
             ).then(
                 (component) =>
                     component.CreateApplicationComponent
             )
     },
     {
-        path: ':id',
-        loadComponent: () =>
-            import(
-                './pages/application-details/application-details.component'
-            ).then(
-                (component) =>
-                    component.ApplicationDetailsComponent
-            )
-    },
-    {
         path: ':id/edit',
         loadComponent: () =>
             import(
-                './pages/edit-application/edit-application.component'
+                '../pages/edit-application/edit-application.component'
             ).then(
                 (component) =>
                     component.EditApplicationComponent
+            )
+    },
+    {
+        path: ':id',
+        loadComponent: () =>
+            import(
+                '../pages/application-details/application-details.component'
+            ).then(
+                (component) =>
+                    component.ApplicationDetailsComponent
             )
     }
 ];
