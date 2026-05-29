@@ -1,1 +1,39 @@
-<p>applications-list works!</p>
+<div class="applications-list">
+    <app-page-header [title]="'Applications'" [subtitle]="'Manage and track your job applications'">
+    </app-page-header>
+
+    <div class="applications-list__toolbar">
+        <app-search-box [placeholder]="'Search applications...'" (search)="onSearch($event)">
+        </app-search-box>
+    </div>
+
+    @if (loading$ | async) {
+
+    <app-loader></app-loader>
+
+    } @else if (error$ | async; as error) {
+
+    <app-error-state [message]="error" (retry)="loadApplications()">
+    </app-error-state>
+
+    } @else if (applications$ | async; as applications) {
+
+    @if (applications.length > 0) {
+
+    <app-application-table [applications]="applications">
+    </app-application-table>
+
+    <app-pagination [currentPage]="currentPage" [pageSize]="pageSize" [totalRecords]="(totalRecords$ | async) ?? 0"
+        (pageChange)="onPageChange($event)">
+    </app-pagination>
+
+    } @else {
+
+    <app-empty-state title="No Applications Found"
+        message="Start tracking your job applications by creating a new application." actionLabel="Refresh"
+        (action)="loadApplications()">
+    </app-empty-state>
+
+    }
+    }
+</div>

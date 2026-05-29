@@ -5,7 +5,7 @@ import {
 } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { Observable } from 'rxjs';
-import { LoaderService } from 'src/app/core/auth/services/loader.service';
+import { LoaderService } from 'src/app/core/services/loader.service';
 
 
 @Component({
