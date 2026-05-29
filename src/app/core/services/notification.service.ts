@@ -80,17 +80,6 @@ export class NotificationService {
         });
     }
 
-    public clear(): void {
-        this.notificationSubject.next({
-            id: '',
-            type: 'info',
-            message: '',
-            createdAt: Date.now(),
-            duration: 0,
-            dismissible: false,
-        });
-    }
-
     public stream(): Observable<NotificationMessage> {
         return this.notifications$;
     }
@@ -102,14 +91,10 @@ export class NotificationService {
         >,
     ): void {
         this.notificationSubject.next({
-            id: this.generateNotificationId(),
+            id: crypto.randomUUID(),
             dismissible: true,
             createdAt: Date.now(),
             ...notification,
         });
-    }
-
-    private generateNotificationId(): string {
-        return crypto.randomUUID();
     }
 }

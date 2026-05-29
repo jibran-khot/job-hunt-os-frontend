@@ -7,7 +7,11 @@ import {
     HttpRequest,
 } from '@angular/common/http';
 
-import { Observable, catchError, throwError } from 'rxjs';
+import {
+    Observable,
+    catchError,
+    throwError,
+} from 'rxjs';
 
 import { TokenService } from '../services/token.service';
 import { AuthService } from '../services/auth.service';
@@ -19,7 +23,7 @@ export const authInterceptor: HttpInterceptorFn = (
     const tokenService = inject(TokenService);
     const authService = inject(AuthService);
 
-    const token = tokenService.getToken();
+    const token: string | null = tokenService.getToken();
 
     const authenticatedRequest = token
         ? request.clone({
@@ -35,16 +39,10 @@ export const authInterceptor: HttpInterceptorFn = (
                 error instanceof HttpErrorResponse &&
                 error.status === 401
             ) {
-                handleUnauthorized(authService);
+                authService.logout();
             }
 
             return throwError(() => error);
         }),
     );
 };
-
-function handleUnauthorized(
-    authService: AuthService,
-): void {
-    authService.logout();
-}

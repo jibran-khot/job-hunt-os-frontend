@@ -1,6 +1,6 @@
 import { Routes } from '@angular/router';
 
-import { authGuard } from './core/guards/auth.guard';
+import { authGuard } from './core/auth/guards/auth.guard';
 
 import { AuthLayoutComponent } from './layouts/auth-layout/auth-layout.component';
 import { DashboardLayoutComponent } from './layouts/dashboard-layout/dashboard-layout.component';
@@ -10,7 +10,7 @@ export const routes: Routes = [
         path: '',
         component: AuthLayoutComponent,
         loadChildren: () =>
-            import('./features/auth/auth.routes').then(
+            import('./features/auth/routes/auth.routes').then(
                 (module) => module.authRoutes,
             ),
     },
@@ -19,80 +19,64 @@ export const routes: Routes = [
         path: 'app',
         component: DashboardLayoutComponent,
         canActivate: [authGuard],
-        loadChildren: () =>
-            import('./features/dashboard/dashboard.routes').then(
-                (module) => module.dashboardRoutes,
-            ),
-    },
-
-    {
-        path: 'applications',
-        component: DashboardLayoutComponent,
-        canActivate: [authGuard],
-        loadChildren: () =>
-            import('./features/applications/applications.routes').then(
-                (module) => module.applicationRoutes,
-            ),
-    },
-
-    {
-        path: 'activities',
-        component: DashboardLayoutComponent,
-        canActivate: [authGuard],
-        loadChildren: () =>
-            import('./features/activities/activities.routes').then(
-                (module) => module.activitiesRoutes,
-            ),
-    },
-
-    {
-        path: 'followups',
-        component: DashboardLayoutComponent,
-        canActivate: [authGuard],
-        loadChildren: () =>
-            import('./features/followups/followups.routes').then(
-                (module) => module.followupRoutes,
-            ),
-    },
-
-    {
-        path: 'interviews',
-        component: DashboardLayoutComponent,
-        canActivate: [authGuard],
-        loadChildren: () =>
-            import('./features/interviews/interviews.routes').then(
-                (module) => module.interviewRoutes,
-            ),
-    },
-
-    {
-        path: 'recruiters',
-        component: DashboardLayoutComponent,
-        canActivate: [authGuard],
-        loadChildren: () =>
-            import('./features/recruiters/recruiters.routes').then(
-                (module) => module.recruiterRoutes,
-            ),
-    },
-
-    {
-        path: 'resumes',
-        component: DashboardLayoutComponent,
-        canActivate: [authGuard],
-        loadChildren: () =>
-            import('./features/resumes/resumes.routes').then(
-                (module) => module.resumeRoutes,
-            ),
-    },
-
-    {
-        path: 'settings',
-        component: DashboardLayoutComponent,
-        canActivate: [authGuard],
-        loadChildren: () =>
-            import('./features/settings/settings.routes').then(
-                (module) => module.settingsRoutes,
-            ),
+        children: [
+            {
+                path: '',
+                loadChildren: () =>
+                    import('./features/dashboard/routes/dashboard.routes').then(
+                        (module) => module.dashboardRoutes,
+                    ),
+            },
+            {
+                path: 'applications',
+                loadChildren: () =>
+                    import(
+                        './features/applications/routes/applications.routes'
+                    ).then((module) => module.applicationRoutes),
+            },
+            {
+                path: 'activities',
+                loadChildren: () =>
+                    import('./features/activities/routes/activities.routes').then(
+                        (module) => module.activitiesRoutes,
+                    ),
+            },
+            {
+                path: 'followups',
+                loadChildren: () =>
+                    import('./features/followups/routes/followups.routes').then(
+                        (module) => module.followupRoutes,
+                    ),
+            },
+            {
+                path: 'interviews',
+                loadChildren: () =>
+                    import('./features/interviews/routes/interviews.routes').then(
+                        (module) => module.interviewRoutes,
+                    ),
+            },
+            {
+                path: 'recruiters',
+                loadChildren: () =>
+                    import('./features/recruiters/routes/recruiters.routes').then(
+                        (module) => module.recruiterRoutes,
+                    ),
+            },
+            {
+                path: 'resumes',
+                loadChildren: () =>
+                    import('./features/resumes/routes/resumes.routes').then(
+                        (module) => module.resumeRoutes,
+                    ),
+            },
+            {
+                path: 'settings',
+                loadChildren: () =>
+                    import('./features/settings/routes/settings.routes').then(
+                        (module) => module.settingsRoutes,
+                    ),
+            },
+        ],
     },
 
     {
@@ -103,6 +87,6 @@ export const routes: Routes = [
 
     {
         path: '**',
-        redirectTo: 'login',
+        redirectTo: '/login',
     },
-];
+]; ``

@@ -8,16 +8,13 @@ import {
     finalize,
     map,
     of,
-    switchMap,
     tap,
     throwError,
 } from 'rxjs';
 
-import { AuthApiService } from '../api/auth-api.service';
 
 import { TokenService } from './token.service';
 import { StorageService } from '../../services/storage.service';
-
 import { LoaderService } from '../../services/loader.service';
 
 import { LoginDto } from '../../../features/auth/dto/login.dto';
@@ -55,13 +52,13 @@ export class AuthService {
                 this.setAuthState(response);
             }),
             map((response: AuthResponse) => response.user),
-            finalize(() => {
-                this.loaderService.hide();
-            }),
             catchError((error: unknown) => {
                 this.clearSession();
 
                 return throwError(() => error);
+            }),
+            finalize(() => {
+                this.loaderService.hide();
             }),
         );
     }
@@ -88,10 +85,10 @@ export class AuthService {
                 this.setAuthState(response);
             }),
             map((response: AuthResponse) => response.user),
-            catchError((error: unknown) => {
+            catchError(() => {
                 this.clearSession();
 
-                return throwError(() => error);
+                return of(null);
             }),
         );
     }
@@ -99,16 +96,12 @@ export class AuthService {
     public isAuthenticated(): Observable<boolean> {
         return this.authState$.pipe(
             map((isAuthenticated: boolean) => {
-                const token: string | null = this.tokenService.getToken();
+                const token: string | null =
+                    this.tokenService.getToken();
 
-                if (!token) {
-                    return false;
-                }
-
-                return (
-                    isAuthenticated &&
-                    !this.tokenService.isTokenExpired(token)
-                );
+                return !!token &&
+                    !this.tokenService.isTokenExpired(token) &&
+                    isAuthenticated;
             }),
         );
     }
