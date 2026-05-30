@@ -31,7 +31,7 @@
 
     margin-top: 0.0625rem;
 
-    color: var(--color-danger-500, #dc2626);
+    color: var(--color-danger);
 
     svg {
         width: 100%;
@@ -40,13 +40,14 @@
 }
 
 .validation-message__text {
-    color: var(--color-danger-500, #dc2626);
+    color: var(--color-danger);
 
     font-size: 0.8125rem;
     font-weight: 500;
     line-height: 1.25rem;
 
     word-break: break-word;
+    overflow-wrap: break-word;
 }
 
 @media (max-width: 768px) {

@@ -1,6 +1,9 @@
-<div *ngIf="isOpen" class="confirmation-dialog-backdrop" role="presentation" (click)="onBackdropClick()">
+@if (isOpen) {
+<div class="confirmation-dialog-backdrop" role="presentation" (click)="onBackdropClick()">
+
     <div class="confirmation-dialog" role="dialog" aria-modal="true" aria-labelledby="confirmation-dialog-title"
         aria-describedby="confirmation-dialog-message" (click)="onDialogClick($event)">
+
         <div class="confirmation-dialog__header">
             <h2 id="confirmation-dialog-title" class="confirmation-dialog__title">
                 {{ config.title }}
@@ -16,15 +19,16 @@
         <div class="confirmation-dialog__footer">
             <button type="button" class="confirmation-dialog__button confirmation-dialog__button--secondary"
                 (click)="cancel()">
-                {{ config.cancelButtonText || 'Cancel' }}
+                {{ config.cancelButtonText ?? 'Cancel' }}
             </button>
 
-            <button type="button" class="confirmation-dialog__button" [ngClass]="{
-          'confirmation-dialog__button--destructive': config.isDestructive,
-          'confirmation-dialog__button--primary': !config.isDestructive
-        }" (click)="confirm()">
-                {{ config.confirmButtonText || 'Confirm' }}
+            <button type="button" class="confirmation-dialog__button"
+                [class.confirmation-dialog__button--destructive]="config.isDestructive"
+                [class.confirmation-dialog__button--primary]="!config.isDestructive" (click)="confirm()">
+                {{ config.confirmButtonText ?? 'Confirm' }}
             </button>
         </div>
     </div>
+
 </div>
+}

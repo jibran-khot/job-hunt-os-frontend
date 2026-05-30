@@ -1,1 +1,55 @@
-<p>application-details works!</p>
+<div class="application-details">
+
+    <app-loader *ngIf="loading$ | async">
+    </app-loader>
+
+    <ng-container *ngIf="!(loading$ | async)">
+
+        <app-error-state *ngIf="error$ | async as error" [message]="error" (retry)="refreshApplication()">
+        </app-error-state>
+
+        <ng-container *ngIf="
+                !(error$ | async) &&
+                (application$ | async) as application
+            ">
+
+            <app-application-header [application]="application">
+            </app-application-header>
+
+            <div class="application-details__content">
+
+                <div class="application-details__main">
+
+                    <section class="application-details__section">
+                        <app-application-notes [applicationId]="application.id">
+                        </app-application-notes>
+                    </section>
+
+                    <section class="application-details__section">
+                        <app-activity-history [applicationId]="application.id">
+                        </app-activity-history>
+                    </section>
+
+                </div>
+
+                <aside class="application-details__sidebar">
+
+                    <section class="application-details__section">
+                        <app-followup-list [applicationId]="application.id">
+                        </app-followup-list>
+                    </section>
+
+                    <section class="application-details__section">
+                        <app-interview-list [applicationId]="application.id">
+                        </app-interview-list>
+                    </section>
+
+                </aside>
+
+            </div>
+
+        </ng-container>
+
+    </ng-container>
+
+</div>

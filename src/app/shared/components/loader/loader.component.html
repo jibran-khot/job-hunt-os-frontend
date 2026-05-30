@@ -1,16 +1,19 @@
-<div *ngIf="isLoading$ | async" class="loader" [ngClass]="loaderClasses" role="status" aria-live="polite"
-    aria-busy="true">
-    <div *ngIf="overlay" class="loader__backdrop"></div>
+@if (isLoading$ | async) {
+<div class="loader" [ngClass]="loaderClasses()" role="status" aria-live="polite" aria-busy="true">
+    @if (overlay()) {
+    <div class="loader__backdrop"></div>
+    }
 
     <div class="loader__container">
-
         <div class="loader__spinner-wrapper">
-            <span class="loader__spinner"></span>
+            <span class="loader__spinner" aria-hidden="true"></span>
         </div>
 
-        <p *ngIf="message" class="loader__message">
-            {{ message }}
+        @if (message()) {
+        <p class="loader__message">
+            {{ message() }}
         </p>
-
+        }
     </div>
 </div>
+}

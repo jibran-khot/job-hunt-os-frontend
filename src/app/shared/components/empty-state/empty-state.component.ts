@@ -12,7 +12,7 @@ import { CommonModule } from '@angular/common';
     standalone: true,
     imports: [CommonModule],
     templateUrl: './empty-state.component.html',
-    styleUrls: ['./empty-state.component.scss'],
+    styleUrl: './empty-state.component.scss',
     changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class EmptyStateComponent {
@@ -29,7 +29,8 @@ export class EmptyStateComponent {
 
     @Input() public centered = true;
 
-    @Output() public actionTriggered = new EventEmitter<void>();
+    @Output() public readonly actionTriggered =
+        new EventEmitter<void>();
 
     public retry(): void {
         this.actionTriggered.emit();

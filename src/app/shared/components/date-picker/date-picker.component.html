@@ -1,22 +1,27 @@
-<div class="date-picker" [class.date-picker--compact]="appearance === 'compact'"
-    [class.date-picker--disabled]="disabled" [class.date-picker--readonly]="readonly">
-    <label *ngIf="label" class="date-picker__label" [for]="id">
-        {{ label }}
+<div class="date-picker" [class.date-picker--compact]="appearance() === 'compact'"
+    [class.date-picker--disabled]="isDisabled() || disabled()" [class.date-picker--readonly]="readonly()">
+    @if (label()) {
+    <label class="date-picker__label" [for]="id()">
+        {{ label() }}
 
-        <span *ngIf="required" class="date-picker__required">
+        @if (required()) {
+        <span class="date-picker__required">
             *
         </span>
+        }
     </label>
+    }
 
-    <div class="date-picker__field" [class.date-picker__field--has-value]="hasValue">
-        <input class="date-picker__input" [id]="id" type="date" [value]="value" [min]="min" [max]="max"
-            [attr.placeholder]="placeholder" [disabled]="disabled" [readonly]="readonly" [required]="required"
-            (input)="selectDate($event)" (blur)="onTouched()" />
-
-        <button *ngIf="hasValue" type="button" class="date-picker__clear-button" [disabled]="disabled || readonly"
+    <div class="date-picker__field" [class.date-picker__field--has-value]="hasValue()">
+        <input class="date-picker__input" [id]="id()" type="date" [value]="value()" [min]="getMinDate()"
+            [max]="getMaxDate()" [attr.placeholder]="placeholder()" [disabled]="isDisabled() || disabled()"
+            [readonly]="readonly()" [required]="required()" (input)="selectDate($event)" (blur)="handleBlur()" />
+        @if (hasValue()) {
+        <button type="button" class="date-picker__clear-button" [disabled]="isDisabled() || disabled() || readonly()"
             aria-label="Clear selected date" (click)="clearDate()">
             &times;
         </button>
+        }
 
         <div class="date-picker__calendar-trigger">
             <svg class="date-picker__calendar-icon" viewBox="0 0 24 24" fill="none" aria-hidden="true">
@@ -31,11 +36,9 @@
         </div>
     </div>
 
-    <p *ngIf="helperText" class="date-picker__helper-text">
-        {{ helperText }}
+    @if (helperText()) {
+    <p class="date-picker__helper-text">
+        {{ helperText() }}
     </p>
-
-    <div *ngIf="errorMessage" class="date-picker__validation-message" role="alert" aria-live="polite">
-        {{ errorMessage }}
-    </div>
+    }
 </div>

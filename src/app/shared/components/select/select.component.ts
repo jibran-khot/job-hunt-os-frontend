@@ -2,6 +2,7 @@ import {
     ChangeDetectionStrategy,
     Component,
     DestroyRef,
+    effect,
     forwardRef,
     inject,
     input,
@@ -14,7 +15,6 @@ import {
     NG_VALUE_ACCESSOR,
     ReactiveFormsModule
 } from '@angular/forms';
-
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 
 import { ValidationMessageComponent } from '../validation-message/validation-message.component';
@@ -46,12 +46,14 @@ export interface SelectOption<T = string> {
 })
 export class SelectComponent<T = string>
     implements ControlValueAccessor {
+
     private readonly destroyRef = inject(DestroyRef);
 
     readonly label = input<string>('');
     readonly placeholder = input<string>('Select an option');
     readonly selectId = input<string>('');
     readonly helperText = input<string>('');
+
     readonly control = input<AbstractControl | null>(null);
 
     readonly options = input<SelectOption<T>[]>([]);
@@ -64,11 +66,28 @@ export class SelectComponent<T = string>
     protected readonly isDisabled = signal<boolean>(false);
     protected readonly hasError = signal<boolean>(false);
 
+    private currentControl: AbstractControl | null = null;
+
     private onChange: (value: T | null) => void = () => { };
     private onTouched: () => void = () => { };
 
     constructor() {
-        this.initializeControlState();
+        effect(() => {
+            this.isDisabled.set(
+                this.disabled() || this.currentControl?.disabled === true
+            );
+        });
+
+        effect(() => {
+            const control = this.control();
+
+            if (!control || control === this.currentControl) {
+                return;
+            }
+
+            this.currentControl = control;
+            this.bindControl(control);
+        });
     }
 
     writeValue(value: T | null): void {
@@ -90,11 +109,15 @@ export class SelectComponent<T = string>
     protected onSelectChange(event: Event): void {
         const selectElement = event.target as HTMLSelectElement;
 
-        const selectedValue = selectElement.value as T;
+        const selectedValue = selectElement.value;
+
+        const matchedOption = this.options().find(
+            (option) => String(option.value) === selectedValue
+        );
 
         const normalizedValue = selectedValue === ''
             ? null
-            : selectedValue;
+            : (matchedOption?.value ?? (selectedValue as T));
 
         this.value.set(normalizedValue);
         this.onChange(normalizedValue);
@@ -107,22 +130,15 @@ export class SelectComponent<T = string>
     protected onBlur(): void {
         this.isFocused.set(false);
         this.onTouched();
-
         this.updateErrorState();
     }
 
     protected shouldShowError(): boolean {
-        const control = this.control();
-
-        if (!control) {
-            return false;
-        }
-
-        return control.invalid && (control.dirty || control.touched);
+        return this.hasError();
     }
 
     protected isSelectedOption(option: SelectOption<T>): boolean {
-        return option.value === this.value();
+        return Object.is(option.value, this.value());
     }
 
     protected trackByOptionValue(
@@ -132,17 +148,23 @@ export class SelectComponent<T = string>
         return String(option.value);
     }
 
-    private initializeControlState(): void {
-        const control = this.control();
+    protected getSelectedValue(): string {
+        const value = this.value();
 
-        if (!control) {
-            return;
-        }
+        return value === null
+            ? ''
+            : String(value);
+    }
 
+    private bindControl(control: AbstractControl): void {
         control.statusChanges
             ?.pipe(takeUntilDestroyed(this.destroyRef))
             .subscribe(() => {
                 this.updateErrorState();
+
+                this.isDisabled.set(
+                    this.disabled() || control.disabled
+                );
             });
 
         control.valueChanges
@@ -150,6 +172,12 @@ export class SelectComponent<T = string>
             .subscribe((value: unknown) => {
                 this.value.set((value as T) ?? null);
             });
+
+        this.value.set((control.value as T) ?? null);
+
+        this.isDisabled.set(
+            this.disabled() || control.disabled
+        );
 
         this.updateErrorState();
     }

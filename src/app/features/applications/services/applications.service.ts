@@ -1,15 +1,13 @@
-import { Injectable } from '@angular/core';
-import { Observable, tap } from 'rxjs';
+import { Injectable, inject } from '@angular/core';
+import { Observable, finalize, tap } from 'rxjs';
 
 import { ApplicationsState } from '../state/applications.state';
-
 import { Application } from '../models/application.model';
-
 import { CreateApplicationDto } from '../dto/create-application.dto';
+import { UpdateApplicationDto } from '../dto/update-application.dto';
 
 import { ApiResponse } from '../../../shared/interfaces/api-response.interface';
 import { ApiClientService } from 'src/app/core/http/clients/api-client.service';
-import { UpdateApplicationDto } from '../dto/update-application.dto';
 
 @Injectable({
     providedIn: 'root'
@@ -17,37 +15,31 @@ import { UpdateApplicationDto } from '../dto/update-application.dto';
 export class ApplicationsService {
     private readonly endpoint = '/applications';
 
-    constructor(
-        private readonly apiClientService: ApiClientService,
-        private readonly applicationsState: ApplicationsState
-    ) { }
+    private readonly apiClientService =
+        inject(ApiClientService);
 
-    getApplications(): Observable<ApiResponse<Application[]>> {
+    private readonly applicationsState =
+        inject(ApplicationsState);
+
+    public getApplications(): Observable<ApiResponse<Application[]>> {
         this.applicationsState.setLoading(true);
 
         return this.apiClientService
             .get<ApiResponse<Application[]>>(this.endpoint)
             .pipe(
-                tap({
-                    next: (response) => {
-                        this.applicationsState.setApplications(
-                            response.data ?? []
-                        );
-                        this.applicationsState.setError(null);
-                        this.applicationsState.setLoading(false);
-                    },
-                    error: (error) => {
-                        this.applicationsState.setError(
-                            error?.message ??
-                            'Failed to load applications.'
-                        );
-                        this.applicationsState.setLoading(false);
-                    }
+                tap((response) => {
+                    this.applicationsState.setApplications(
+                        response.data ?? []
+                    );
+                    this.applicationsState.setError(null);
+                }),
+                finalize(() => {
+                    this.applicationsState.setLoading(false);
                 })
             );
     }
 
-    getApplicationById(
+    public getApplicationById(
         applicationId: string
     ): Observable<ApiResponse<Application>> {
         this.applicationsState.setLoading(true);
@@ -57,26 +49,19 @@ export class ApplicationsService {
                 `${this.endpoint}/${applicationId}`
             )
             .pipe(
-                tap({
-                    next: (response) => {
-                        this.applicationsState.setSelectedApplication(
-                            response.data
-                        );
-                        this.applicationsState.setError(null);
-                        this.applicationsState.setLoading(false);
-                    },
-                    error: (error) => {
-                        this.applicationsState.setError(
-                            error?.message ??
-                            'Failed to load application.'
-                        );
-                        this.applicationsState.setLoading(false);
-                    }
+                tap((response) => {
+                    this.applicationsState.setSelectedApplication(
+                        response.data
+                    );
+                    this.applicationsState.setError(null);
+                }),
+                finalize(() => {
+                    this.applicationsState.setLoading(false);
                 })
             );
     }
 
-    createApplication(
+    public createApplication(
         payload: CreateApplicationDto
     ): Observable<ApiResponse<Application>> {
         this.applicationsState.setLoading(true);
@@ -87,31 +72,25 @@ export class ApplicationsService {
                 payload
             )
             .pipe(
-                tap({
-                    next: (response) => {
-                        const application = response.data;
+                tap((response) => {
+                    const application =
+                        response.data;
 
-                        if (application) {
-                            this.applicationsState.addApplication(
-                                application
-                            );
-                        }
-
-                        this.applicationsState.setError(null);
-                        this.applicationsState.setLoading(false);
-                    },
-                    error: (error) => {
-                        this.applicationsState.setError(
-                            error?.message ??
-                            'Failed to create application.'
+                    if (application) {
+                        this.applicationsState.addApplication(
+                            application
                         );
-                        this.applicationsState.setLoading(false);
                     }
+
+                    this.applicationsState.setError(null);
+                }),
+                finalize(() => {
+                    this.applicationsState.setLoading(false);
                 })
             );
     }
 
-    updateApplication(
+    public updateApplication(
         applicationId: string,
         payload: UpdateApplicationDto
     ): Observable<ApiResponse<Application>> {
@@ -123,34 +102,29 @@ export class ApplicationsService {
                 payload
             )
             .pipe(
-                tap({
-                    next: (response) => {
-                        const application = response.data;
+                tap((response) => {
+                    const application =
+                        response.data;
 
-                        if (application) {
-                            this.applicationsState.updateApplication(
-                                application
-                            );
-                            this.applicationsState.setSelectedApplication(
-                                application
-                            );
-                        }
-
-                        this.applicationsState.setError(null);
-                        this.applicationsState.setLoading(false);
-                    },
-                    error: (error) => {
-                        this.applicationsState.setError(
-                            error?.message ??
-                            'Failed to update application.'
+                    if (application) {
+                        this.applicationsState.updateApplication(
+                            application
                         );
-                        this.applicationsState.setLoading(false);
+
+                        this.applicationsState.setSelectedApplication(
+                            application
+                        );
                     }
+
+                    this.applicationsState.setError(null);
+                }),
+                finalize(() => {
+                    this.applicationsState.setLoading(false);
                 })
             );
     }
 
-    deleteApplication(
+    public deleteApplication(
         applicationId: string
     ): Observable<ApiResponse<void>> {
         this.applicationsState.setLoading(true);
@@ -160,26 +134,24 @@ export class ApplicationsService {
                 `${this.endpoint}/${applicationId}`
             )
             .pipe(
-                tap({
-                    next: () => {
-                        this.applicationsState.removeApplication(
-                            applicationId
-                        );
-                        this.applicationsState.setError(null);
-                        this.applicationsState.setLoading(false);
-                    },
-                    error: (error) => {
-                        this.applicationsState.setError(
-                            error?.message ??
-                            'Failed to delete application.'
-                        );
-                        this.applicationsState.setLoading(false);
-                    }
+                tap(() => {
+                    this.applicationsState.removeApplication(
+                        applicationId
+                    );
+
+                    this.applicationsState.setSelectedApplication(
+                        null
+                    );
+
+                    this.applicationsState.setError(null);
+                }),
+                finalize(() => {
+                    this.applicationsState.setLoading(false);
                 })
             );
     }
 
-    updateStatus(
+    public updateStatus(
         applicationId: string,
         status: string
     ): Observable<ApiResponse<Application>> {
@@ -191,34 +163,29 @@ export class ApplicationsService {
                 { status }
             )
             .pipe(
-                tap({
-                    next: (response) => {
-                        const application = response.data;
+                tap((response) => {
+                    const application =
+                        response.data;
 
-                        if (application) {
-                            this.applicationsState.updateApplication(
-                                application
-                            );
-                            this.applicationsState.setSelectedApplication(
-                                application
-                            );
-                        }
-
-                        this.applicationsState.setError(null);
-                        this.applicationsState.setLoading(false);
-                    },
-                    error: (error) => {
-                        this.applicationsState.setError(
-                            error?.message ??
-                            'Failed to update application status.'
+                    if (application) {
+                        this.applicationsState.updateApplication(
+                            application
                         );
-                        this.applicationsState.setLoading(false);
+
+                        this.applicationsState.setSelectedApplication(
+                            application
+                        );
                     }
+
+                    this.applicationsState.setError(null);
+                }),
+                finalize(() => {
+                    this.applicationsState.setLoading(false);
                 })
             );
     }
 
-    searchApplications(
+    public searchApplications(
         searchTerm: string
     ): Observable<ApiResponse<Application[]>> {
         this.applicationsState.setLoading(true);
@@ -227,25 +194,19 @@ export class ApplicationsService {
             .get<ApiResponse<Application[]>>(
                 `${this.endpoint}/search`,
                 {
-                    q: searchTerm
+                    q: searchTerm.trim()
                 }
             )
             .pipe(
-                tap({
-                    next: (response) => {
-                        this.applicationsState.setApplications(
-                            response.data ?? []
-                        );
-                        this.applicationsState.setError(null);
-                        this.applicationsState.setLoading(false);
-                    },
-                    error: (error) => {
-                        this.applicationsState.setError(
-                            error?.message ??
-                            'Failed to search applications.'
-                        );
-                        this.applicationsState.setLoading(false);
-                    }
+                tap((response) => {
+                    this.applicationsState.setApplications(
+                        response.data ?? []
+                    );
+
+                    this.applicationsState.setError(null);
+                }),
+                finalize(() => {
+                    this.applicationsState.setLoading(false);
                 })
             );
     }

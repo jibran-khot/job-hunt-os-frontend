@@ -1,7 +1,8 @@
 import {
     ChangeDetectionStrategy,
     Component,
-    Input
+    computed,
+    input
 } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import {
@@ -21,48 +22,58 @@ import {
 })
 export class ValidationMessageComponent {
 
-    @Input({ required: true })
-    control: AbstractControl | null = null;
+    readonly control = input<AbstractControl | null>(null);
 
-    @Input()
-    customMessages: Record<string, string> = {};
+    readonly customMessages = input<Record<string, string>>({});
 
-    @Input()
-    showIcon = true;
+    readonly showIcon = input<boolean>(true);
 
-    @Input()
-    submitted = false;
+    readonly submitted = input<boolean>(false);
 
-    get shouldShowError(): boolean {
-        if (!this.control) {
+    protected readonly shouldShowError = computed(() => {
+        const control = this.control();
+
+        if (!control) {
             return false;
         }
 
-        return this.control.invalid &&
-            (this.control.touched || this.control.dirty || this.submitted);
-    }
+        return (
+            control.invalid &&
+            (
+                control.touched ||
+                control.dirty ||
+                this.submitted()
+            )
+        );
+    });
 
-    get errorMessage(): string {
-        if (!this.control?.errors) {
+    protected readonly errorMessage = computed(() => {
+        const control = this.control();
+
+        if (!control?.errors) {
             return '';
         }
 
-        return this.getErrorMessage(this.control.errors);
-    }
+        return this.getErrorMessage(control.errors);
+    });
 
-    getErrorMessage(errors: ValidationErrors): string {
+    protected getErrorMessage(
+        errors: ValidationErrors
+    ): string {
         const firstErrorKey = Object.keys(errors)[0];
 
         if (!firstErrorKey) {
             return '';
         }
 
-        if (this.customMessages[firstErrorKey]) {
-            return this.customMessages[firstErrorKey];
+        const customMessage =
+            this.customMessages()[firstErrorKey];
+
+        if (customMessage) {
+            return customMessage;
         }
 
         switch (firstErrorKey) {
-
             case 'required':
                 return 'This field is required';
 

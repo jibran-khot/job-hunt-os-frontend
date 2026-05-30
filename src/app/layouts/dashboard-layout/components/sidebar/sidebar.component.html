@@ -5,10 +5,12 @@
                 JH
             </div>
 
-            <div class="sidebar__brand-content" *ngIf="!isCollapsed">
+            @if (!isCollapsed) {
+            <div class="sidebar__brand-content">
                 <h2>Job Hunt OS</h2>
                 <p>Career Workflow System</p>
             </div>
+            }
         </button>
 
         <button type="button" class="sidebar__toggle" (click)="toggleSidebar()" aria-label="Toggle sidebar">
@@ -19,18 +21,21 @@
     </div>
 
     <nav class="sidebar__navigation">
-        <a *ngFor="let item of navigationItems" [routerLink]="item.route" routerLinkActive="sidebar__nav-item--active"
-            [routerLinkActiveOptions]="{
-        exact: item.route === '/app'
-      }" class="sidebar__nav-item" (click)="navigate(item.route)">
+        @for (item of navigationItems; track item.route) {
+        <a [routerLink]="item.route" routerLinkActive="sidebar__nav-item--active" [routerLinkActiveOptions]="{
+                    exact: item.route === '/app'
+                }" class="sidebar__nav-item" (click)="navigate(item.route)">
             <span class="material-symbols-outlined sidebar__nav-icon">
                 {{ item.icon }}
             </span>
 
-            <span class="sidebar__nav-label" *ngIf="!isCollapsed">
+            @if (!isCollapsed) {
+            <span class="sidebar__nav-label">
                 {{ item.label }}
             </span>
+            }
         </a>
+        }
     </nav>
 
     <div class="sidebar__footer">
@@ -39,9 +44,11 @@
                 logout
             </span>
 
-            <span *ngIf="!isCollapsed">
+            @if (!isCollapsed) {
+            <span>
                 Logout
             </span>
+            }
         </button>
     </div>
 </aside>

@@ -2,19 +2,19 @@ import {
     ChangeDetectionStrategy,
     Component,
     DestroyRef,
+    effect,
     forwardRef,
     inject,
     input,
     signal
 } from '@angular/core';
+import { CommonModule } from '@angular/common';
 import {
     AbstractControl,
     ControlValueAccessor,
     NG_VALUE_ACCESSOR,
     ReactiveFormsModule
 } from '@angular/forms';
-import { CommonModule } from '@angular/common';
-
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 
 import { ValidationMessageComponent } from '../validation-message/validation-message.component';
@@ -63,11 +63,28 @@ export class InputComponent implements ControlValueAccessor {
     protected readonly isPasswordVisible = signal<boolean>(false);
     protected readonly hasError = signal<boolean>(false);
 
+    private currentControl: AbstractControl | null = null;
+
     private onChange: (value: string) => void = () => { };
     private onTouched: () => void = () => { };
 
     constructor() {
-        this.initializeControlState();
+        effect(() => {
+            this.isDisabled.set(
+                this.disabled() || this.currentControl?.disabled === true
+            );
+        });
+
+        effect(() => {
+            const control = this.control();
+
+            if (!control || control === this.currentControl) {
+                return;
+            }
+
+            this.currentControl = control;
+            this.bindControl(control);
+        });
     }
 
     writeValue(value: string | null): void {
@@ -94,15 +111,14 @@ export class InputComponent implements ControlValueAccessor {
         this.onChange(value);
     }
 
+    protected onFocus(): void {
+        this.isFocused.set(true);
+    }
+
     protected onBlur(): void {
         this.isFocused.set(false);
         this.onTouched();
-
         this.updateErrorState();
-    }
-
-    protected onFocus(): void {
-        this.isFocused.set(true);
     }
 
     protected togglePasswordVisibility(): void {
@@ -110,7 +126,7 @@ export class InputComponent implements ControlValueAccessor {
             return;
         }
 
-        this.isPasswordVisible.update((value) => !value);
+        this.isPasswordVisible.update((visible) => !visible);
     }
 
     protected getInputType(): string {
@@ -118,9 +134,7 @@ export class InputComponent implements ControlValueAccessor {
             return this.type();
         }
 
-        return this.isPasswordVisible()
-            ? 'text'
-            : 'password';
+        return this.isPasswordVisible() ? 'text' : 'password';
     }
 
     protected shouldShowPasswordToggle(): boolean {
@@ -128,37 +142,46 @@ export class InputComponent implements ControlValueAccessor {
     }
 
     protected shouldShowError(): boolean {
-        const control = this.control();
-
-        if (!control) {
-            return false;
-        }
-
-        return control.invalid && (control.dirty || control.touched);
+        return this.hasError();
     }
 
     protected getCharacterCount(): number {
         return this.value().length;
     }
 
-    private initializeControlState(): void {
-        const control = this.control();
-
-        if (!control) {
-            return;
-        }
-
+    private bindControl(control: AbstractControl): void {
         control.statusChanges
             ?.pipe(takeUntilDestroyed(this.destroyRef))
             .subscribe(() => {
                 this.updateErrorState();
+                this.isDisabled.set(
+                    this.disabled() || control.disabled
+                );
             });
 
         control.valueChanges
             ?.pipe(takeUntilDestroyed(this.destroyRef))
             .subscribe((value: unknown) => {
-                this.value.set((value as string) ?? '');
+                this.value.set(
+                    typeof value === 'string'
+                        ? value
+                        : value == null
+                            ? ''
+                            : String(value)
+                );
             });
+
+        this.value.set(
+            typeof control.value === 'string'
+                ? control.value
+                : control.value == null
+                    ? ''
+                    : String(control.value)
+        );
+
+        this.isDisabled.set(
+            this.disabled() || control.disabled
+        );
 
         this.updateErrorState();
     }

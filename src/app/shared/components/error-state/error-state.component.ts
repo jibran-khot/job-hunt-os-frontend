@@ -12,7 +12,7 @@ import { CommonModule } from '@angular/common';
     standalone: true,
     imports: [CommonModule],
     templateUrl: './error-state.component.html',
-    styleUrls: ['./error-state.component.scss'],
+    styleUrl: './error-state.component.scss',
     changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class ErrorStateComponent {
@@ -29,7 +29,8 @@ export class ErrorStateComponent {
 
     @Input() public centered = true;
 
-    @Output() public retryTriggered = new EventEmitter<void>();
+    @Output() public readonly retryTriggered =
+        new EventEmitter<void>();
 
     public retry(): void {
         this.retryTriggered.emit();

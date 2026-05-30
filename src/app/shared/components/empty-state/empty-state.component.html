@@ -1,4 +1,5 @@
 <div class="empty-state" [class.empty-state--centered]="centered" role="status" aria-live="polite">
+
     <div class="empty-state__icon" aria-hidden="true">
         {{ icon }}
     </div>
@@ -13,7 +14,9 @@
         </p>
     </div>
 
-    <button *ngIf="showAction" type="button" class="empty-state__action" (click)="retry()">
+    @if (showAction) {
+    <button type="button" class="empty-state__action" (click)="retry()">
         {{ actionLabel }}
     </button>
+    }
 </div>

@@ -1,27 +1,33 @@
-<div class="input" [class.input--focused]="isFocused()" [class.input--disabled]="isDisabled() || disabled()"
+<div class="input" [class.input--focused]="isFocused()" [class.input--disabled]="isDisabled()"
     [class.input--error]="shouldShowError()">
-    <label *ngIf="label()" class="input__label" [attr.for]="inputId()">
+    @if (label()) {
+    <label class="input__label" [attr.for]="inputId()">
         <span class="input__label-text">
             {{ label() }}
         </span>
 
-        <span *ngIf="required()" class="input__required-indicator">
+        @if (required()) {
+        <span class="input__required-indicator">
             *
         </span>
+        }
     </label>
+    }
 
     <div class="input__field-wrapper">
         <input class="input__field" [id]="inputId()" [type]="getInputType()" [value]="value()"
-            [placeholder]="placeholder()" [readonly]="readonly()" [required]="required()"
-            [disabled]="isDisabled() || disabled()" [autocomplete]="autocomplete()" [attr.maxlength]="maxLength()"
-            [attr.minlength]="minLength()" [attr.aria-invalid]="shouldShowError()" [attr.aria-describedby]="
-        helperText()
-          ? inputId() + '-helper'
-          : null
-      " (input)="onInput($event)" (blur)="onBlur()" (focus)="onFocus()" />
+            [placeholder]="placeholder()" [readonly]="readonly()" [required]="required()" [disabled]="isDisabled()"
+            [autocomplete]="autocomplete()" [attr.maxlength]="maxLength()" [attr.minlength]="minLength()"
+            [attr.aria-invalid]="shouldShowError()"
+            [attr.aria-describedby]="helperText() ? inputId() + '-helper' : null" (input)="onInput($event)"
+            (blur)="onBlur()" (focus)="onFocus()" />
 
-        <button *ngIf="shouldShowPasswordToggle()" type="button" class="input__password-toggle"
-            [disabled]="isDisabled() || disabled()" (click)="togglePasswordVisibility()">
+        @if (shouldShowPasswordToggle()) {
+        <button type="button" class="input__password-toggle" [disabled]="isDisabled()" [attr.aria-label]="
+                    isPasswordVisible()
+                        ? 'Hide password'
+                        : 'Show password'
+                " (click)="togglePasswordVisibility()">
             <span class="material-symbols-outlined">
                 {{
                 isPasswordVisible()
@@ -30,17 +36,26 @@
                 }}
             </span>
         </button>
+        }
     </div>
 
-    <div *ngIf="helperText() || maxLength()" class="input__footer">
-        <p *ngIf="helperText()" class="input__helper-text" [id]="inputId() + '-helper'">
+    @if (helperText() || maxLength()) {
+    <div class="input__footer">
+        @if (helperText()) {
+        <p class="input__helper-text" [id]="inputId() + '-helper'">
             {{ helperText() }}
         </p>
+        }
 
-        <span *ngIf="maxLength()" class="input__character-count">
+        @if (maxLength()) {
+        <span class="input__character-count">
             {{ getCharacterCount() }}/{{ maxLength() }}
         </span>
+        }
     </div>
+    }
 
-    <app-validation-message *ngIf="control() && shouldShowError()" [control]="control()" />
+    @if (control() && shouldShowError()) {
+    <app-validation-message [control]="control()!" />
+    }
 </div>

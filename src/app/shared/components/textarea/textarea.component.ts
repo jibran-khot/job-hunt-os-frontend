@@ -1,9 +1,11 @@
 import {
+  AfterViewInit,
   ChangeDetectionStrategy,
   Component,
   DestroyRef,
   ElementRef,
   ViewChild,
+  effect,
   forwardRef,
   inject,
   input,
@@ -16,7 +18,6 @@ import {
   NG_VALUE_ACCESSOR,
   ReactiveFormsModule
 } from '@angular/forms';
-
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 
 import { ValidationMessageComponent } from '../validation-message/validation-message.component';
@@ -41,7 +42,8 @@ import { ValidationMessageComponent } from '../validation-message/validation-mes
   changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class TextareaComponent
-  implements ControlValueAccessor {
+  implements ControlValueAccessor, AfterViewInit {
+
   @ViewChild('textareaElement')
   private textareaElement?: ElementRef<HTMLTextAreaElement>;
 
@@ -51,6 +53,7 @@ export class TextareaComponent
   readonly placeholder = input<string>('');
   readonly textareaId = input<string>('');
   readonly helperText = input<string>('');
+
   readonly control = input<AbstractControl | null>(null);
 
   readonly rows = input<number>(5);
@@ -71,11 +74,34 @@ export class TextareaComponent
   protected readonly isDisabled = signal<boolean>(false);
   protected readonly hasError = signal<boolean>(false);
 
+  private currentControl: AbstractControl | null = null;
+
   private onChange: (value: string) => void = () => { };
   private onTouched: () => void = () => { };
 
   constructor() {
-    this.initializeControlState();
+    effect(() => {
+      this.isDisabled.set(
+        this.disabled() || this.currentControl?.disabled === true
+      );
+    });
+
+    effect(() => {
+      const control = this.control();
+
+      if (!control || control === this.currentControl) {
+        return;
+      }
+
+      this.currentControl = control;
+      this.bindControl(control);
+    });
+  }
+
+  ngAfterViewInit(): void {
+    queueMicrotask(() => {
+      this.adjustTextareaHeight();
+    });
   }
 
   writeValue(value: string | null): void {
@@ -100,7 +126,6 @@ export class TextareaComponent
 
   protected onInput(event: Event): void {
     const textarea = event.target as HTMLTextAreaElement;
-
     const value = textarea.value;
 
     this.value.set(value);
@@ -116,48 +141,61 @@ export class TextareaComponent
   protected onBlur(): void {
     this.isFocused.set(false);
     this.onTouched();
-
     this.updateErrorState();
   }
 
   protected shouldShowError(): boolean {
-    const control = this.control();
-
-    if (!control) {
-      return false;
-    }
-
-    return control.invalid && (control.dirty || control.touched);
+    return this.hasError();
   }
 
   protected getCharacterCount(): number {
     return this.value().length;
   }
 
-  private initializeControlState(): void {
-    const control = this.control();
-
-    if (!control) {
-      return;
-    }
-
+  private bindControl(control: AbstractControl): void {
     control.statusChanges
       ?.pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe(() => {
         this.updateErrorState();
+
+        this.isDisabled.set(
+          this.disabled() || control.disabled
+        );
       });
 
     control.valueChanges
       ?.pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe((value: unknown) => {
-        this.value.set((value as string) ?? '');
+        this.value.set(
+          typeof value === 'string'
+            ? value
+            : value == null
+              ? ''
+              : String(value)
+        );
 
         queueMicrotask(() => {
           this.adjustTextareaHeight();
         });
       });
 
+    this.value.set(
+      typeof control.value === 'string'
+        ? control.value
+        : control.value == null
+          ? ''
+          : String(control.value)
+    );
+
+    this.isDisabled.set(
+      this.disabled() || control.disabled
+    );
+
     this.updateErrorState();
+
+    queueMicrotask(() => {
+      this.adjustTextareaHeight();
+    });
   }
 
   private updateErrorState(): void {
@@ -189,18 +227,18 @@ export class TextareaComponent
 
     const computedStyle = window.getComputedStyle(textarea);
 
-    const lineHeight = parseInt(
+    const lineHeight = Number.parseInt(
       computedStyle.lineHeight,
       10
     );
 
     const verticalPadding =
-      parseInt(computedStyle.paddingTop, 10) +
-      parseInt(computedStyle.paddingBottom, 10);
+      Number.parseInt(computedStyle.paddingTop, 10) +
+      Number.parseInt(computedStyle.paddingBottom, 10);
 
     const borderWidth =
-      parseInt(computedStyle.borderTopWidth, 10) +
-      parseInt(computedStyle.borderBottomWidth, 10);
+      Number.parseInt(computedStyle.borderTopWidth, 10) +
+      Number.parseInt(computedStyle.borderBottomWidth, 10);
 
     const minHeight =
       (this.minRows() * lineHeight) +

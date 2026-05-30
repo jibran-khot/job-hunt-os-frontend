@@ -2,10 +2,8 @@ import {
     ChangeDetectionStrategy,
     Component,
     HostListener,
-    OnInit,
 } from '@angular/core';
 
-import { CommonModule } from '@angular/common';
 import { RouterOutlet } from '@angular/router';
 
 import { TopbarComponent } from './components/topbar/topbar.component';
@@ -15,26 +13,20 @@ import { SidebarComponent } from './components/sidebar/sidebar.component';
     selector: 'app-dashboard-layout',
     standalone: true,
     imports: [
-        CommonModule,
         RouterOutlet,
         SidebarComponent,
         TopbarComponent,
     ],
     templateUrl: './dashboard-layout.component.html',
-    styleUrls: ['./dashboard-layout.component.scss'],
+    styleUrl: './dashboard-layout.component.scss',
     changeDetection: ChangeDetectionStrategy.OnPush,
 })
-export class DashboardLayoutComponent
-    implements OnInit {
+export class DashboardLayoutComponent {
     public isSidebarCollapsed = false;
 
     public isMobileSidebarOpen = false;
 
     public readonly mobileBreakpoint = 992;
-
-    public ngOnInit(): void {
-        this.initializeLayout();
-    }
 
     public toggleSidebar(): void {
         if (window.innerWidth <= this.mobileBreakpoint) {
@@ -57,9 +49,5 @@ export class DashboardLayoutComponent
         if (window.innerWidth > this.mobileBreakpoint) {
             this.isMobileSidebarOpen = false;
         }
-    }
-
-    private initializeLayout(): void {
-        this.onResize();
     }
 }

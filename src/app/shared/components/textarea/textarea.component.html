@@ -1,36 +1,47 @@
-<div class="textarea" [class.textarea--focused]="isFocused()" [class.textarea--disabled]="isDisabled() || disabled()"
+<div class="textarea" [class.textarea--focused]="isFocused()" [class.textarea--disabled]="isDisabled()"
     [class.textarea--error]="shouldShowError()">
-    <label *ngIf="label()" class="textarea__label" [attr.for]="textareaId()">
+    @if (label()) {
+    <label class="textarea__label" [attr.for]="textareaId()">
         <span class="textarea__label-text">
             {{ label() }}
         </span>
 
-        <span *ngIf="required()" class="textarea__required-indicator">
+        @if (required()) {
+        <span class="textarea__required-indicator">
             *
         </span>
+        }
     </label>
+    }
 
     <div class="textarea__field-wrapper">
         <textarea #textareaElement class="textarea__field" [id]="textareaId()" [value]="value()" [rows]="rows()"
-            [placeholder]="placeholder()" [readonly]="readonly()" [required]="required()"
-            [disabled]="isDisabled() || disabled()" [attr.maxlength]="maxLength()" [attr.minlength]="minLength()"
-            [attr.aria-invalid]="shouldShowError()" [attr.aria-describedby]="
-        helperText()
-          ? textareaId() + '-helper'
-          : null
-      " (input)="onInput($event)" (focus)="onFocus()" (blur)="onBlur()">
-    </textarea>
+            [placeholder]="placeholder()" [readonly]="readonly()" [required]="required()" [disabled]="isDisabled()"
+            [attr.maxlength]="maxLength()" [attr.minlength]="minLength()" [attr.aria-invalid]="shouldShowError()"
+            [attr.aria-describedby]="
+                helperText()
+                    ? textareaId() + '-helper'
+                    : null
+            " (input)="onInput($event)" (focus)="onFocus()" (blur)="onBlur()"></textarea>
     </div>
 
-    <div *ngIf="helperText() || maxLength()" class="textarea__footer">
-        <p *ngIf="helperText()" class="textarea__helper-text" [id]="textareaId() + '-helper'">
+    @if (helperText() || maxLength()) {
+    <div class="textarea__footer">
+        @if (helperText()) {
+        <p class="textarea__helper-text" [id]="textareaId() + '-helper'">
             {{ helperText() }}
         </p>
+        }
 
-        <span *ngIf="maxLength()" class="textarea__character-count">
+        @if (maxLength()) {
+        <span class="textarea__character-count">
             {{ getCharacterCount() }}/{{ maxLength() }}
         </span>
+        }
     </div>
+    }
 
-    <app-validation-message *ngIf="control() && shouldShowError()" [control]="control()" />
+    @if (control() && shouldShowError()) {
+    <app-validation-message [control]="control()!" />
+    }
 </div>

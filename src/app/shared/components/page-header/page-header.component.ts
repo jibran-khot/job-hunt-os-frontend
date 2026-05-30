@@ -6,6 +6,7 @@ import {
     Output
 } from '@angular/core';
 import { CommonModule } from '@angular/common';
+import { RouterLink } from '@angular/router';
 
 export interface PageHeaderAction {
     id: string;
@@ -24,25 +25,35 @@ export interface BreadcrumbItem {
 @Component({
     selector: 'app-page-header',
     standalone: true,
-    imports: [CommonModule],
+    imports: [
+        CommonModule,
+        RouterLink
+    ],
     templateUrl: './page-header.component.html',
-    styleUrls: ['./page-header.component.scss'],
+    styleUrl: './page-header.component.scss',
     changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class PageHeaderComponent {
-    @Input() public title = '';
+    @Input({ required: true })
+    public title = '';
 
-    @Input() public subtitle = '';
+    @Input()
+    public subtitle = '';
 
-    @Input() public breadcrumbs: BreadcrumbItem[] = [];
+    @Input()
+    public breadcrumbs: readonly BreadcrumbItem[] = [];
 
-    @Input() public actions: PageHeaderAction[] = [];
+    @Input()
+    public actions: readonly PageHeaderAction[] = [];
 
-    @Input() public showDivider = true;
+    @Input()
+    public showDivider = true;
 
-    @Input() public centered = false;
+    @Input()
+    public centered = false;
 
-    @Output() public actionTriggered =
+    @Output()
+    public readonly actionTriggered =
         new EventEmitter<PageHeaderAction>();
 
     public emitAction(action: PageHeaderAction): void {
@@ -54,16 +65,16 @@ export class PageHeaderComponent {
     }
 
     public trackByAction(
-        index: number,
+        _index: number,
         action: PageHeaderAction
     ): string {
         return action.id;
     }
 
     public trackByBreadcrumb(
-        index: number,
+        _index: number,
         breadcrumb: BreadcrumbItem
     ): string {
-        return `${breadcrumb.label}-${index}`;
+        return breadcrumb.route ?? breadcrumb.label;
     }
 }

@@ -1,11 +1,15 @@
 import {
   ChangeDetectionStrategy,
   Component,
-  OnInit
+  OnInit,
+  inject
 } from '@angular/core';
 import { AsyncPipe } from '@angular/common';
 
-import { catchError, of } from 'rxjs';
+import {
+  catchError,
+  of
+} from 'rxjs';
 
 import { ApplicationsService } from '../../services/applications.service';
 import { ApplicationsState } from '../../state/applications.state';
@@ -34,36 +38,39 @@ import { LoaderComponent } from 'src/app/shared/components/loader/loader.compone
     ErrorStateComponent
   ],
   templateUrl: './applications-list.component.html',
-  styleUrls: ['./applications-list.component.scss'],
+  styleUrl: './applications-list.component.scss',
   changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class ApplicationsListComponent implements OnInit {
-  readonly applications$ =
+  private readonly applicationsService =
+    inject(ApplicationsService);
+
+  private readonly applicationsState =
+    inject(ApplicationsState);
+
+  public readonly applications$ =
     this.applicationsState.applications$;
 
-  readonly loading$ =
+  public readonly loading$ =
     this.applicationsState.loading$;
 
-  readonly error$ =
+  public readonly error$ =
     this.applicationsState.error$;
 
-  readonly totalRecords$ =
+  public readonly totalRecords$ =
     this.applicationsState.totalRecords$;
 
-  currentPage = 1;
-  pageSize = 10;
-  searchTerm = '';
+  public currentPage = 1;
 
-  constructor(
-    private readonly applicationsService: ApplicationsService,
-    private readonly applicationsState: ApplicationsState
-  ) { }
+  public pageSize = 10;
 
-  ngOnInit(): void {
+  public searchTerm = '';
+
+  public ngOnInit(): void {
     this.loadApplications();
   }
 
-  loadApplications(): void {
+  public loadApplications(): void {
     this.applicationsService
       .getApplications()
       .pipe(
@@ -72,21 +79,23 @@ export class ApplicationsListComponent implements OnInit {
       .subscribe();
   }
 
-  applyFilters(): void {
+  public applyFilters(): void {
     if (this.searchTerm.trim()) {
       this.onSearch(this.searchTerm);
+
       return;
     }
 
     this.loadApplications();
   }
 
-  onSearch(searchTerm: string): void {
+  public onSearch(searchTerm: string): void {
     this.searchTerm = searchTerm.trim();
     this.currentPage = 1;
 
     if (!this.searchTerm) {
       this.loadApplications();
+
       return;
     }
 
@@ -98,8 +107,13 @@ export class ApplicationsListComponent implements OnInit {
       .subscribe();
   }
 
-  onPageChange(page: number): void {
+  public onPageChange(page: number): void {
+    if (page < 1 || page === this.currentPage) {
+      return;
+    }
+
     this.currentPage = page;
-    this.loadApplications();
+
+    this.applyFilters();
   }
 }

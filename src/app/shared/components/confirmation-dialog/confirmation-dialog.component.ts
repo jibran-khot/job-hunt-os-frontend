@@ -1,5 +1,6 @@
 import {
     ChangeDetectionStrategy,
+    ChangeDetectorRef,
     Component,
     EventEmitter,
     Input,
@@ -10,8 +11,7 @@ import {
 } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { Subject, takeUntil } from 'rxjs';
-import { ModalService } from 'src/app/core/auth/services/modal.service';
-
+import { ModalService } from 'src/app/core/services/modal.service';
 
 export interface ConfirmationDialogConfig {
     title: string;
@@ -27,7 +27,7 @@ export interface ConfirmationDialogConfig {
     standalone: true,
     imports: [CommonModule],
     templateUrl: './confirmation-dialog.component.html',
-    styleUrls: ['./confirmation-dialog.component.scss'],
+    styleUrl: './confirmation-dialog.component.scss',
     changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class ConfirmationDialogComponent implements OnInit, OnDestroy {
@@ -42,10 +42,11 @@ export class ConfirmationDialogComponent implements OnInit, OnDestroy {
         closeOnBackdropClick: true
     };
 
-    @Output() public confirmed = new EventEmitter<void>();
-    @Output() public cancelled = new EventEmitter<void>();
+    @Output() public readonly confirmed = new EventEmitter<void>();
+    @Output() public readonly cancelled = new EventEmitter<void>();
 
     private readonly modalService = inject(ModalService);
+    private readonly cdr = inject(ChangeDetectorRef);
     private readonly destroy$ = new Subject<void>();
 
     public ngOnInit(): void {
@@ -63,7 +64,7 @@ export class ConfirmationDialogComponent implements OnInit, OnDestroy {
     }
 
     public onBackdropClick(): void {
-        if (!this.config.closeOnBackdropClick) {
+        if (this.config.closeOnBackdropClick === false) {
             return;
         }
 
@@ -93,17 +94,17 @@ export class ConfirmationDialogComponent implements OnInit, OnDestroy {
                         title: modalData.title,
                         message: modalData.message,
                         confirmButtonText:
-                            modalData.confirmButtonText ??
-                            'Confirm',
+                            modalData.confirmButtonText ?? 'Confirm',
                         cancelButtonText:
-                            modalData.cancelButtonText ??
-                            'Cancel',
+                            modalData.cancelButtonText ?? 'Cancel',
                         isDestructive:
                             modalData.isDestructive ?? false,
                         closeOnBackdropClick:
                             modalData.closeOnBackdropClick ?? true
                     };
                 }
+
+                this.cdr.markForCheck();
             });
     }
 

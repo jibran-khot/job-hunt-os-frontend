@@ -1,29 +1,27 @@
 import {
     ChangeDetectionStrategy,
     Component,
-    EventEmitter,
     forwardRef,
-    Input,
-    Output
+    input,
+    output,
+    signal
 } from '@angular/core';
+import { CommonModule } from '@angular/common';
 import {
     AbstractControl,
     ControlValueAccessor,
-    FormsModule,
     NG_VALIDATORS,
     NG_VALUE_ACCESSOR,
     ReactiveFormsModule,
     ValidationErrors,
     Validator
 } from '@angular/forms';
-import { CommonModule } from '@angular/common';
 
 @Component({
     selector: 'app-date-picker',
     standalone: true,
     imports: [
         CommonModule,
-        FormsModule,
         ReactiveFormsModule
     ],
     templateUrl: './date-picker.component.html',
@@ -42,40 +40,41 @@ import { CommonModule } from '@angular/common';
     ],
     changeDetection: ChangeDetectionStrategy.OnPush
 })
-export class DatePickerComponent implements ControlValueAccessor, Validator {
+export class DatePickerComponent
+    implements ControlValueAccessor, Validator {
 
-    @Input() label = '';
-    @Input() placeholder = '';
-    @Input() helperText = '';
-    @Input() errorMessage = '';
-    @Input() minDate?: string | null;
-    @Input() maxDate?: string | null;
-    @Input() disabledDates: string[] = [];
-    @Input() required = false;
-    @Input() disabled = false;
-    @Input() readonly = false;
-    @Input() appearance: 'default' | 'compact' = 'default';
-    @Input() id = `date-picker-${Math.random().toString(36).slice(2, 11)}`;
+    readonly label = input<string>('');
+    readonly placeholder = input<string>('');
+    readonly helperText = input<string>('');
+    readonly minDate = input<string | null>(null);
+    readonly maxDate = input<string | null>(null);
+    readonly disabledDates = input<string[]>([]);
+    readonly required = input<boolean>(false);
+    readonly disabled = input<boolean>(false);
+    readonly readonly = input<boolean>(false);
+    readonly appearance = input<'default' | 'compact'>('default');
+    readonly id = input<string>('date-picker');
 
-    @Output() dateChange = new EventEmitter<string | null>();
+    readonly dateChange = output<string | null>();
 
-    value: string | null = null;
+    protected readonly value = signal<string | null>(null);
+    protected readonly isDisabled = signal<boolean>(false);
 
-    protected onChange: (value: string | null) => void = () => { };
-    protected onTouched: () => void = () => { };
+    private onChange: (value: string | null) => void = () => { };
+    private onTouched: () => void = () => { };
 
     writeValue(value: string | Date | null): void {
         if (!value) {
-            this.value = null;
+            this.value.set(null);
             return;
         }
 
         if (value instanceof Date) {
-            this.value = this.formatDate(value);
+            this.value.set(this.formatDate(value));
             return;
         }
 
-        this.value = value;
+        this.value.set(value);
     }
 
     registerOnChange(fn: (value: string | null) => void): void {
@@ -87,32 +86,41 @@ export class DatePickerComponent implements ControlValueAccessor, Validator {
     }
 
     setDisabledState(isDisabled: boolean): void {
-        this.disabled = isDisabled;
+        this.isDisabled.set(isDisabled);
     }
 
     validate(_: AbstractControl): ValidationErrors | null {
-        if (this.required && !this.value) {
+        const currentValue = this.value();
+
+        if (this.required() && !currentValue) {
             return {
                 required: true
             };
         }
 
-        if (this.value && this.minDate && this.value < this.minDate) {
+        if (
+            currentValue &&
+            this.minDate() &&
+            currentValue < this.minDate()!
+        ) {
             return {
                 minDate: true
             };
         }
 
-        if (this.value && this.maxDate && this.value > this.maxDate) {
+        if (
+            currentValue &&
+            this.maxDate() &&
+            currentValue > this.maxDate()!
+        ) {
             return {
                 maxDate: true
             };
         }
 
         if (
-            this.value &&
-            this.disabledDates.length > 0 &&
-            this.disabledDates.includes(this.value)
+            currentValue &&
+            this.disabledDates().includes(currentValue)
         ) {
             return {
                 disabledDate: true
@@ -122,17 +130,17 @@ export class DatePickerComponent implements ControlValueAccessor, Validator {
         return null;
     }
 
-    selectDate(event: Event): void {
+    protected selectDate(event: Event): void {
         const inputElement = event.target as HTMLInputElement;
         const selectedDate = inputElement.value || null;
 
         if (
             selectedDate &&
-            this.disabledDates.includes(selectedDate)
+            this.disabledDates().includes(selectedDate)
         ) {
             inputElement.value = '';
 
-            this.value = null;
+            this.value.set(null);
 
             this.onChange(null);
             this.onTouched();
@@ -142,41 +150,44 @@ export class DatePickerComponent implements ControlValueAccessor, Validator {
             return;
         }
 
-        this.value = selectedDate;
+        this.value.set(selectedDate);
 
-        this.onChange(this.value);
+        this.onChange(selectedDate);
         this.onTouched();
 
-        this.dateChange.emit(this.value);
+        this.dateChange.emit(selectedDate);
     }
 
-    clearDate(): void {
-        if (this.disabled || this.readonly) {
+    protected clearDate(): void {
+        if (this.disabled() || this.readonly() || this.isDisabled()) {
             return;
         }
 
-        this.value = null;
+        this.value.set(null);
 
-        this.onChange(this.value);
+        this.onChange(null);
         this.onTouched();
 
-        this.dateChange.emit(this.value);
+        this.dateChange.emit(null);
     }
 
-    trackByDisabledDate(_: number, date: string): string {
+    protected trackByDisabledDate(
+        _: number,
+        date: string
+    ): string {
         return date;
     }
 
-    get hasValue(): boolean {
-        return !!this.value;
+    protected hasValue(): boolean {
+        return this.value() !== null;
     }
 
-    get min(): string | null {
-        return this.minDate ?? null;
+    protected getMinDate(): string | null {
+        return this.minDate();
     }
 
-    get max(): string | null {
-        return this.maxDate ?? null;
+    protected getMaxDate(): string | null {
+        return this.maxDate();
     }
 
     private formatDate(date: Date): string {
@@ -185,5 +196,8 @@ export class DatePickerComponent implements ControlValueAccessor, Validator {
         const day = `${date.getDate()}`.padStart(2, '0');
 
         return `${year}-${month}-${day}`;
+    }
+    protected handleBlur(): void {
+        this.onTouched();
     }
 }

@@ -1,7 +1,8 @@
-<div *ngIf="shouldShowError" class="validation-message" role="alert" aria-live="assertive">
+@if (shouldShowError()) {
+<div class="validation-message" role="alert" aria-live="assertive">
     <div class="validation-message__content">
-
-        <span *ngIf="showIcon" class="validation-message__icon" aria-hidden="true">
+        @if (showIcon()) {
+        <span class="validation-message__icon" aria-hidden="true">
             <svg viewBox="0 0 24 24" fill="none">
                 <circle cx="12" cy="12" r="10" stroke="currentColor" stroke-width="2"></circle>
 
@@ -10,10 +11,11 @@
                 <circle cx="12" cy="17" r="1" fill="currentColor"></circle>
             </svg>
         </span>
+        }
 
         <span class="validation-message__text">
-            {{ errorMessage }}
+            {{ errorMessage() }}
         </span>
-
     </div>
 </div>
+}

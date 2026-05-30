@@ -7,15 +7,13 @@ import {
     inject,
 } from '@angular/core';
 
-import { CommonModule } from '@angular/common';
-
 import {
     Router,
     RouterLink,
     RouterLinkActive,
 } from '@angular/router';
-import { AuthService } from 'src/app/core/auth/services/auth.service';
 
+import { AuthService } from '../../../../core/auth/services/auth.service';
 
 interface SidebarNavigationItem {
     label: string;
@@ -27,12 +25,11 @@ interface SidebarNavigationItem {
     selector: 'app-sidebar',
     standalone: true,
     imports: [
-        CommonModule,
         RouterLink,
         RouterLinkActive,
     ],
     templateUrl: './sidebar.component.html',
-    styleUrls: ['./sidebar.component.scss'],
+    styleUrl: './sidebar.component.scss',
     changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class SidebarComponent {
@@ -65,37 +62,37 @@ export class SidebarComponent {
             {
                 label: 'Applications',
                 icon: 'work',
-                route: '/applications',
+                route: '/app/applications',
             },
             {
                 label: 'Activities',
                 icon: 'timeline',
-                route: '/activities',
+                route: '/app/activities',
             },
             {
                 label: 'Followups',
                 icon: 'notifications',
-                route: '/followups',
+                route: '/app/followups',
             },
             {
                 label: 'Interviews',
                 icon: 'event',
-                route: '/interviews',
+                route: '/app/interviews',
             },
             {
                 label: 'Recruiters',
                 icon: 'groups',
-                route: '/recruiters',
+                route: '/app/recruiters',
             },
             {
                 label: 'Resumes',
                 icon: 'description',
-                route: '/resumes',
+                route: '/app/resumes',
             },
             {
                 label: 'Settings',
                 icon: 'settings',
-                route: '/settings',
+                route: '/app/settings',
             },
         ];
 

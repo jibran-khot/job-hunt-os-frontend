@@ -1,18 +1,18 @@
 import {
     ChangeDetectionStrategy,
     Component,
-    EventEmitter,
+    OnDestroy,
     forwardRef,
-    Input,
-    Output
+    input,
+    output,
+    signal
 } from '@angular/core';
+import { CommonModule } from '@angular/common';
 import {
     ControlValueAccessor,
-    FormsModule,
     NG_VALUE_ACCESSOR,
     ReactiveFormsModule
 } from '@angular/forms';
-import { CommonModule } from '@angular/common';
 
 export interface UploadedFile {
     file: File;
@@ -27,7 +27,6 @@ export interface UploadedFile {
     standalone: true,
     imports: [
         CommonModule,
-        FormsModule,
         ReactiveFormsModule
     ],
     templateUrl: './file-upload.component.html',
@@ -41,31 +40,34 @@ export interface UploadedFile {
     ],
     changeDetection: ChangeDetectionStrategy.OnPush
 })
-export class FileUploadComponent implements ControlValueAccessor {
+export class FileUploadComponent
+    implements ControlValueAccessor, OnDestroy {
 
-    @Input() label = 'Upload File';
-    @Input() helperText = '';
-    @Input() accept = '.pdf,.doc,.docx';
-    @Input() multiple = false;
-    @Input() required = false;
-    @Input() disabled = false;
-    @Input() maxFileSizeInMb = 5;
-    @Input() maxFiles = 5;
+    readonly label = input<string>('Upload File');
+    readonly helperText = input<string>('');
+    readonly accept = input<string>('.pdf,.doc,.docx');
+    readonly multiple = input<boolean>(false);
+    readonly required = input<boolean>(false);
+    readonly disabled = input<boolean>(false);
+    readonly maxFileSizeInMb = input<number>(5);
+    readonly maxFiles = input<number>(5);
 
-    @Output() filesChange = new EventEmitter<File[]>();
-    @Output() validationError = new EventEmitter<string>();
+    readonly filesChange = output<File[]>();
+    readonly validationError = output<string>();
 
-    uploadedFiles: UploadedFile[] = [];
+    protected readonly uploadedFiles = signal<UploadedFile[]>([]);
+    protected readonly isDragOver = signal<boolean>(false);
+    protected readonly errorMessage = signal<string>('');
+    protected readonly isDisabled = signal<boolean>(false);
 
-    isDragOver = false;
-    errorMessage = '';
-
-    protected onChange: (value: File[] | File | null) => void = () => { };
-    protected onTouched: () => void = () => { };
+    private onChange: (value: File[] | File | null) => void = () => { };
+    private onTouched: () => void = () => { };
 
     writeValue(value: File[] | File | null): void {
+        this.revokePreviewUrls();
+
         if (!value) {
-            this.clearFiles();
+            this.uploadedFiles.set([]);
             return;
         }
 
@@ -73,16 +75,20 @@ export class FileUploadComponent implements ControlValueAccessor {
             ? value
             : [value];
 
-        this.uploadedFiles = files.map((file) => ({
-            file,
-            name: file.name,
-            size: file.size,
-            type: file.type,
-            previewUrl: this.createPreviewUrl(file)
-        }));
+        this.uploadedFiles.set(
+            files.map((file) => ({
+                file,
+                name: file.name,
+                size: file.size,
+                type: file.type,
+                previewUrl: this.createPreviewUrl(file)
+            }))
+        );
     }
 
-    registerOnChange(fn: (value: File[] | File | null) => void): void {
+    registerOnChange(
+        fn: (value: File[] | File | null) => void
+    ): void {
         this.onChange = fn;
     }
 
@@ -91,82 +97,161 @@ export class FileUploadComponent implements ControlValueAccessor {
     }
 
     setDisabledState(isDisabled: boolean): void {
-        this.disabled = isDisabled;
+        this.isDisabled.set(isDisabled);
     }
 
-    onFileSelect(event: Event): void {
+    protected onFileSelect(event: Event): void {
         const inputElement = event.target as HTMLInputElement;
 
         if (!inputElement.files?.length) {
             return;
         }
 
-        this.processFiles(Array.from(inputElement.files));
+        this.processFiles(
+            Array.from(inputElement.files)
+        );
 
         inputElement.value = '';
     }
 
-    onDragOver(event: DragEvent): void {
+    protected onDragOver(event: DragEvent): void {
         event.preventDefault();
 
-        if (this.disabled) {
+        if (this.isDisabled() || this.disabled()) {
             return;
         }
 
-        this.isDragOver = true;
+        this.isDragOver.set(true);
     }
 
-    onDragLeave(event: DragEvent): void {
+    protected onDragLeave(event: DragEvent): void {
         event.preventDefault();
-        this.isDragOver = false;
+        this.isDragOver.set(false);
     }
 
-    onDrop(event: DragEvent): void {
+    protected onDrop(event: DragEvent): void {
         event.preventDefault();
 
-        this.isDragOver = false;
+        this.isDragOver.set(false);
 
-        if (this.disabled || !event.dataTransfer?.files?.length) {
+        if (
+            this.isDisabled() ||
+            this.disabled() ||
+            !event.dataTransfer?.files?.length
+        ) {
             return;
         }
 
-        this.processFiles(Array.from(event.dataTransfer.files));
+        this.processFiles(
+            Array.from(event.dataTransfer.files)
+        );
     }
 
-    removeFile(index: number): void {
-        const removedFile = this.uploadedFiles[index];
+    protected removeFile(index: number): void {
+        const files = [...this.uploadedFiles()];
+        const removedFile = files[index];
 
         if (removedFile?.previewUrl) {
-            URL.revokeObjectURL(removedFile.previewUrl);
+            URL.revokeObjectURL(
+                removedFile.previewUrl
+            );
         }
 
-        this.uploadedFiles.splice(index, 1);
+        files.splice(index, 1);
+
+        this.uploadedFiles.set(files);
 
         this.emitFiles();
     }
 
-    validateFile(file: File): boolean {
-        const allowedExtensions = this.accept
-            .split(',')
-            .map((type) => type.trim().toLowerCase());
+    protected trackByFileName(
+        _: number,
+        file: UploadedFile
+    ): string {
+        return `${file.name}-${file.size}`;
+    }
 
-        const fileExtension = `.${file.name.split('.').pop()?.toLowerCase()}`;
+    protected hasFiles(): boolean {
+        return this.uploadedFiles().length > 0;
+    }
 
-        const isValidExtension = allowedExtensions.includes(fileExtension);
+    ngOnDestroy(): void {
+        this.revokePreviewUrls();
+    }
 
-        if (!isValidExtension) {
+    private processFiles(files: File[]): void {
+        this.clearError();
+
+        const validatedFiles = files.filter(
+            (file) => this.validateFile(file)
+        );
+
+        if (!validatedFiles.length) {
+            return;
+        }
+
+        if (!this.multiple()) {
+            this.clearFiles();
+            validatedFiles.splice(1);
+        }
+
+        const totalFiles =
+            this.uploadedFiles().length +
+            validatedFiles.length;
+
+        if (totalFiles > this.maxFiles()) {
             this.setError(
-                `Invalid file type. Allowed types: ${this.accept}`
+                `Maximum ${this.maxFiles()} files allowed`
+            );
+
+            return;
+        }
+
+        const mappedFiles: UploadedFile[] =
+            validatedFiles.map((file) => ({
+                file,
+                name: file.name,
+                size: file.size,
+                type: file.type,
+                previewUrl: this.createPreviewUrl(file)
+            }));
+
+        this.uploadedFiles.set([
+            ...this.uploadedFiles(),
+            ...mappedFiles
+        ]);
+
+        this.emitFiles();
+    }
+
+    private validateFile(file: File): boolean {
+        const allowedExtensions = this.accept()
+            .split(',')
+            .map((type) =>
+                type.trim().toLowerCase()
+            );
+
+        const fileExtension =
+            `.${file.name.split('.').pop()?.toLowerCase()}`;
+
+        if (
+            !allowedExtensions.includes(fileExtension)
+        ) {
+            this.setError(
+                `Invalid file type. Allowed types: ${this.accept()}`
             );
 
             return false;
         }
 
-        const maxFileSizeInBytes = this.maxFileSizeInMb * 1024 * 1024;
+        const maxFileSizeInBytes =
+            this.maxFileSizeInMb() *
+            1024 *
+            1024;
 
         if (file.size > maxFileSizeInBytes) {
             this.setError(
-                `File size cannot exceed ${this.maxFileSizeInMb} MB`
+                `File size cannot exceed ${this.maxFileSizeInMb()} MB`
             );
 
             return false;
@@ -175,60 +260,12 @@ export class FileUploadComponent implements ControlValueAccessor {
         return true;
     }
 
-    trackByFileName(_: number, file: UploadedFile): string {
-        return `${file.name}-${file.size}`;
-    }
-
-    get hasFiles(): boolean {
-        return this.uploadedFiles.length > 0;
-    }
-
-    private processFiles(files: File[]): void {
-        this.clearError();
-
-        const validatedFiles = files.filter((file) =>
-            this.validateFile(file)
+    private emitFiles(): void {
+        const files = this.uploadedFiles().map(
+            (item) => item.file
         );
 
-        if (!validatedFiles.length) {
-            return;
-        }
-
-        if (!this.multiple) {
-            this.clearFiles();
-            validatedFiles.splice(1);
-        }
-
-        const totalFiles = this.uploadedFiles.length + validatedFiles.length;
-
-        if (totalFiles > this.maxFiles) {
-            this.setError(
-                `Maximum ${this.maxFiles} files allowed`
-            );
-
-            return;
-        }
-
-        const mappedFiles: UploadedFile[] = validatedFiles.map((file) => ({
-            file,
-            name: file.name,
-            size: file.size,
-            type: file.type,
-            previewUrl: this.createPreviewUrl(file)
-        }));
-
-        this.uploadedFiles = [
-            ...this.uploadedFiles,
-            ...mappedFiles
-        ];
-
-        this.emitFiles();
-    }
-
-    private emitFiles(): void {
-        const files = this.uploadedFiles.map((item) => item.file);
-
-        const emittedValue = this.multiple
+        const emittedValue = this.multiple()
             ? files
             : files[0] ?? null;
 
@@ -238,7 +275,9 @@ export class FileUploadComponent implements ControlValueAccessor {
         this.filesChange.emit(files);
     }
 
-    private createPreviewUrl(file: File): string | null {
+    private createPreviewUrl(
+        file: File
+    ): string | null {
         if (!file.type.startsWith('image/')) {
             return null;
         }
@@ -247,21 +286,26 @@ export class FileUploadComponent implements ControlValueAccessor {
     }
 
     private clearFiles(): void {
-        this.uploadedFiles.forEach((file) => {
+        this.revokePreviewUrls();
+        this.uploadedFiles.set([]);
+    }
+
+    private revokePreviewUrls(): void {
+        this.uploadedFiles().forEach((file) => {
             if (file.previewUrl) {
-                URL.revokeObjectURL(file.previewUrl);
+                URL.revokeObjectURL(
+                    file.previewUrl
+                );
             }
         });
-
-        this.uploadedFiles = [];
     }
 
     private setError(message: string): void {
-        this.errorMessage = message;
+        this.errorMessage.set(message);
         this.validationError.emit(message);
     }
 
     private clearError(): void {
-        this.errorMessage = '';
+        this.errorMessage.set('');
     }
 }

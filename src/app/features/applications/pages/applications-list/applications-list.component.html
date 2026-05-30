@@ -1,19 +1,21 @@
 <div class="applications-list">
-    <app-page-header [title]="'Applications'" [subtitle]="'Manage and track your job applications'">
+
+    <app-page-header title="Applications" subtitle="Manage and track your job applications">
     </app-page-header>
 
     <div class="applications-list__toolbar">
-        <app-search-box [placeholder]="'Search applications...'" (search)="onSearch($event)">
+        <app-search-box placeholder="Search applications..." (search)="onSearch($event)">
         </app-search-box>
     </div>
 
     @if (loading$ | async) {
 
-    <app-loader></app-loader>
+    <app-loader>
+    </app-loader>
 
     } @else if (error$ | async; as error) {
 
-    <app-error-state [message]="error" (retry)="loadApplications()">
+    <app-error-state [message]="error" (retryTriggered)="loadApplications()">
     </app-error-state>
 
     } @else if (applications$ | async; as applications) {
@@ -31,9 +33,11 @@
 
     <app-empty-state title="No Applications Found"
         message="Start tracking your job applications by creating a new application." actionLabel="Refresh"
-        (action)="loadApplications()">
+        [showAction]="true" (actionTriggered)="loadApplications()">
     </app-empty-state>
 
     }
+
     }
+
 </div>

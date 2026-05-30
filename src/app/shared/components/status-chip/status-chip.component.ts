@@ -18,19 +18,24 @@ export type StatusChipVariant =
     standalone: true,
     imports: [CommonModule],
     templateUrl: './status-chip.component.html',
-    styleUrls: ['./status-chip.component.scss'],
+    styleUrl: './status-chip.component.scss',
     changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class StatusChipComponent {
-    @Input() public label = '';
+    @Input({ required: true })
+    public status = '';
 
-    @Input() public status = '';
+    @Input()
+    public label = '';
 
-    @Input() public icon?: string;
+    @Input()
+    public icon?: string;
 
-    @Input() public compact = false;
+    @Input()
+    public compact = false;
 
-    @Input() public outlined = false;
+    @Input()
+    public outlined = false;
 
     public getStatusClass(): string {
         const normalizedStatus =

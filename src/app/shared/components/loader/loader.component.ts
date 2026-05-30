@@ -1,18 +1,21 @@
 import {
     ChangeDetectionStrategy,
     Component,
-    Input
+    computed,
+    inject,
+    input
 } from '@angular/core';
-import { CommonModule } from '@angular/common';
+import { AsyncPipe, NgClass } from '@angular/common';
 import { Observable } from 'rxjs';
-import { LoaderService } from 'src/app/core/services/loader.service';
 
+import { LoaderService } from 'src/app/core/services/loader.service';
 
 @Component({
     selector: 'app-loader',
     standalone: true,
     imports: [
-        CommonModule
+        AsyncPipe,
+        NgClass
     ],
     templateUrl: './loader.component.html',
     styleUrls: ['./loader.component.scss'],
@@ -20,30 +23,38 @@ import { LoaderService } from 'src/app/core/services/loader.service';
 })
 export class LoaderComponent {
 
-    @Input() fullscreen = true;
-    @Input() overlay = true;
-    @Input() message = 'Loading...';
-    @Input() size: 'sm' | 'md' | 'lg' = 'md';
+    private readonly loaderService =
+        inject(LoaderService);
 
-    readonly isLoading$: Observable<boolean>;
+    readonly fullscreen =
+        input<boolean>(true);
 
-    constructor(
-        private readonly loaderService: LoaderService
-    ) {
-        this.isLoading$ = this.loaderService.isLoading();
-    }
+    readonly overlay =
+        input<boolean>(true);
 
-    trackByMessage(_: number, message: string): string {
+    readonly message =
+        input<string>('Loading...');
+
+    readonly size =
+        input<'sm' | 'md' | 'lg'>('md');
+
+    protected readonly isLoading$: Observable<boolean> =
+        this.loaderService.isLoading();
+
+    protected readonly loaderClasses = computed<
+        Record<string, boolean>
+    >(() => ({
+        'loader--fullscreen': this.fullscreen(),
+        'loader--overlay': this.overlay(),
+        'loader--small': this.size() === 'sm',
+        'loader--medium': this.size() === 'md',
+        'loader--large': this.size() === 'lg'
+    }));
+
+    protected trackByMessage(
+        _: number,
+        message: string
+    ): string {
         return message;
-    }
-
-    get loaderClasses(): Record<string, boolean> {
-        return {
-            'loader--fullscreen': this.fullscreen,
-            'loader--overlay': this.overlay,
-            'loader--small': this.size === 'sm',
-            'loader--medium': this.size === 'md',
-            'loader--large': this.size === 'lg'
-        };
     }
 }

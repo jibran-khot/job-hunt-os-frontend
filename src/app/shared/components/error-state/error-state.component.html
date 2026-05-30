@@ -1,4 +1,5 @@
 <div class="error-state" [class.error-state--centered]="centered" role="alert" aria-live="assertive">
+
     <div class="error-state__icon" aria-hidden="true">
         {{ icon }}
     </div>
@@ -13,7 +14,9 @@
         </p>
     </div>
 
-    <button *ngIf="showRetryAction" type="button" class="error-state__action" (click)="retry()">
+    @if (showRetryAction) {
+    <button type="button" class="error-state__action" (click)="retry()">
         {{ actionLabel }}
     </button>
+    }
 </div>
