@@ -1,1 +1,76 @@
-<p>application-form works!</p>
+<form class="application-form" [formGroup]="applicationForm" (ngSubmit)="submitForm()">
+
+    <div class="application-form__grid">
+
+        <app-input formControlName="companyName" label="Company Name" placeholder="Enter company name">
+        </app-input>
+
+        <app-input formControlName="jobTitle" label="Job Title" placeholder="Enter job title">
+        </app-input>
+
+        <app-select formControlName="status" label="Application Status" placeholder="Select status"
+            [options]="statusOptions">
+        </app-select>
+
+        <app-date-picker formControlName="appliedDate" label="Applied Date">
+        </app-date-picker>
+
+        <app-input formControlName="location" label="Location" placeholder="Enter location">
+        </app-input>
+
+        <app-input formControlName="salary" type="number" label="Expected Salary" placeholder="Enter salary">
+        </app-input>
+
+        <app-input formControlName="recruiterName" label="Recruiter Name" placeholder="Enter recruiter name">
+        </app-input>
+
+        <app-input formControlName="recruiterEmail" type="email" label="Recruiter Email"
+            placeholder="Enter recruiter email">
+        </app-input>
+
+    </div>
+
+    <div class="application-form__section">
+
+        <app-input formControlName="jobUrl" type="url" label="Job URL" placeholder="Paste job posting URL">
+        </app-input>
+
+    </div>
+
+    <div class="application-form__section">
+
+        <app-textarea formControlName="notes" label="Notes" placeholder="Add application notes" [rows]="5">
+        </app-textarea>
+
+    </div>
+
+    <div class="application-form__section">
+
+        <app-file-upload label="Resume" accept=".pdf,.doc,.docx" (filesChange)="onResumeSelected($event)">
+        </app-file-upload>
+
+    </div>
+
+    <div class="application-form__actions">
+
+        <button type="button" class="application-form__button application-form__button--secondary"
+            [disabled]="isSubmitting" (click)="resetForm()">
+            Reset
+        </button>
+
+        <button type="submit" class="application-form__button application-form__button--primary"
+            [disabled]="applicationForm.invalid || isSubmitting">
+
+            @if (isSubmitting) {
+            <span>Saving...</span>
+            } @else {
+            <span>
+                {{ application ? 'Update Application' : 'Create Application' }}
+            </span>
+            }
+
+        </button>
+
+    </div>
+
+</form>

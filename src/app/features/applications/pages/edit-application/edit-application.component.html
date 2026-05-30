@@ -1,1 +1,27 @@
-<p>edit-application works!</p>
+<div class="edit-application">
+
+    <app-page-header [title]="pageTitle" [subtitle]="pageSubtitle">
+    </app-page-header>
+
+    @if (errorMessage && !application && !isLoading) {
+    <app-error-state [message]="errorMessage" (retry)="retry()">
+    </app-error-state>
+    }
+
+    @if (application) {
+    <div class="edit-application__content">
+
+        @if (errorMessage && !isLoading) {
+        <div class="edit-application__error" role="alert" aria-live="assertive">
+            {{ errorMessage }}
+        </div>
+        }
+
+        <app-application-form [application]="application" [isSubmitting]="isSubmitting"
+            (formSubmit)="updateApplication($event)">
+        </app-application-form>
+
+    </div>
+    }
+
+</div>

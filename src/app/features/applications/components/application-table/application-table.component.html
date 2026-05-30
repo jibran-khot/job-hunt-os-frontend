@@ -1,1 +1,102 @@
-<p>application-table works!</p>
+<div class="application-table">
+
+    @if (!loading && applications.length === 0) {
+    <app-empty-state message="No applications found." actionLabel="Refresh">
+    </app-empty-state>
+    }
+
+    @if (applications.length > 0) {
+    <div class="application-table__wrapper">
+
+        <table class="application-table__table">
+
+            <thead>
+                <tr>
+                    <th>
+                        <button type="button" class="application-table__sort-button" (click)="sortTable('companyName')">
+                            Company
+                            <span>{{ getSortIndicator('companyName') }}</span>
+                        </button>
+                    </th>
+
+                    <th>
+                        <button type="button" class="application-table__sort-button" (click)="sortTable('jobTitle')">
+                            Position
+                            <span>{{ getSortIndicator('jobTitle') }}</span>
+                        </button>
+                    </th>
+
+                    <th>
+                        <button type="button" class="application-table__sort-button" (click)="sortTable('status')">
+                            Status
+                            <span>{{ getSortIndicator('status') }}</span>
+                        </button>
+                    </th>
+
+                    <th>
+                        <button type="button" class="application-table__sort-button" (click)="sortTable('appliedDate')">
+                            Applied Date
+                            <span>{{ getSortIndicator('appliedDate') }}</span>
+                        </button>
+                    </th>
+
+                    <th class="application-table__actions-column">
+                        Actions
+                    </th>
+                </tr>
+            </thead>
+
+            <tbody>
+                @for (
+                application of applications;
+                track trackByApplication($index, application)
+                ) {
+                <tr>
+                    <td>
+                        {{ application.companyName }}
+                    </td>
+
+                    <td>
+                        {{ application.jobTitle }}
+                    </td>
+
+                    <td>
+                        <app-status-chip [status]="application.status">
+                        </app-status-chip>
+                    </td>
+
+                    <td>
+                        {{ application.appliedDate }}
+                    </td>
+
+                    <td>
+                        <div class="application-table__actions">
+
+                            <button type="button" class="application-table__action-button"
+                                (click)="viewApplication(application.id)">
+                                View
+                            </button>
+
+                            <button type="button" class="application-table__action-button"
+                                (click)="editApplication(application.id)">
+                                Edit
+                            </button>
+
+                            <button type="button"
+                                class="application-table__action-button application-table__action-button--danger"
+                                (click)="deleteApplication(application.id)">
+                                Delete
+                            </button>
+
+                        </div>
+                    </td>
+                </tr>
+                }
+            </tbody>
+
+        </table>
+
+    </div>
+    }
+
+</div>

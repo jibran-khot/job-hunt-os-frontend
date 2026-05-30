@@ -1,1 +1,75 @@
-<p>application-notes works!</p>
+<div class="application-notes">
+
+    <div class="application-notes__header">
+        <h2 class="application-notes__title">
+            Notes
+        </h2>
+    </div>
+
+    <form class="application-notes__form" [formGroup]="noteForm" (ngSubmit)="addNote()">
+
+        <app-textarea formControlName="content" label="Add Note" placeholder="Enter application note..." [rows]="4">
+        </app-textarea>
+
+        <div class="application-notes__actions">
+            <button type="submit" class="application-notes__submit-button"
+                [disabled]="noteForm.invalid || isSubmitting">
+
+                @if (isSubmitting) {
+                <span>Adding...</span>
+                } @else {
+                <span>Add Note</span>
+                }
+
+            </button>
+        </div>
+
+    </form>
+
+    @if (!isLoading && notes.length === 0) {
+    <app-empty-state message="No notes available." actionLabel="">
+    </app-empty-state>
+    }
+
+    @if (notes.length > 0) {
+    <div class="application-notes__list">
+
+        @for (
+        note of notes;
+        track trackByNote($index, note)
+        ) {
+        <article class="application-notes__card">
+
+            <div class="application-notes__card-header">
+
+                <div class="application-notes__meta">
+
+                    <span class="application-notes__date">
+                        {{ note.createdAt }}
+                    </span>
+
+                    @if (note.createdBy) {
+                    <span class="application-notes__author">
+                        {{ note.createdBy }}
+                    </span>
+                    }
+
+                </div>
+
+                <button type="button" class="application-notes__delete-button" (click)="deleteNote(note.id)">
+                    Delete
+                </button>
+
+            </div>
+
+            <p class="application-notes__content">
+                {{ note.content }}
+            </p>
+
+        </article>
+        }
+
+    </div>
+    }
+
+</div>

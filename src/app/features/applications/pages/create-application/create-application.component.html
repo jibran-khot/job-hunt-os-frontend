@@ -1,1 +1,20 @@
-<p>create-application works!</p>
+<div class="create-application">
+
+    <app-page-header [title]="pageTitle" [subtitle]="pageSubtitle">
+    </app-page-header>
+
+    <div class="create-application__content">
+
+        @if (submissionError) {
+        <div class="create-application__error" role="alert" aria-live="assertive">
+            {{ submissionError }}
+        </div>
+        }
+
+        <app-application-form [isSubmitting]="isSubmitting" (formSubmit)="createApplication($event)"
+            (formReset)="resetForm()">
+        </app-application-form>
+
+    </div>
+
+</div>

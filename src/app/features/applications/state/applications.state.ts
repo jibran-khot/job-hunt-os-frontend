@@ -93,7 +93,7 @@ export class ApplicationsState {
         }
     }
 
-    removeApplication(applicationId: string): void {
+    removeApplication(applicationId: number): void {
         const applications =
             this.applicationsSubject.value.filter(
                 (application) =>
@@ -110,7 +110,6 @@ export class ApplicationsState {
             this.selectedApplicationSubject.next(null);
         }
     }
-
     setSelectedApplication(
         application: Application | null
     ): void {

@@ -40,7 +40,7 @@ export class ApplicationsService {
     }
 
     public getApplicationById(
-        applicationId: string
+        applicationId: number
     ): Observable<ApiResponse<Application>> {
         this.applicationsState.setLoading(true);
 
@@ -91,7 +91,7 @@ export class ApplicationsService {
     }
 
     public updateApplication(
-        applicationId: string,
+        applicationId: number,
         payload: UpdateApplicationDto
     ): Observable<ApiResponse<Application>> {
         this.applicationsState.setLoading(true);
@@ -125,7 +125,7 @@ export class ApplicationsService {
     }
 
     public deleteApplication(
-        applicationId: string
+        applicationId: number
     ): Observable<ApiResponse<void>> {
         this.applicationsState.setLoading(true);
 
@@ -152,7 +152,7 @@ export class ApplicationsService {
     }
 
     public updateStatus(
-        applicationId: string,
+        applicationId: number,
         status: string
     ): Observable<ApiResponse<Application>> {
         this.applicationsState.setLoading(true);

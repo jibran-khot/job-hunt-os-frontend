@@ -1,5 +1,5 @@
 export interface Application {
-    id: string;
+    id: number;
 
     companyName: string;
 
@@ -23,9 +23,13 @@ export interface Application {
 
     recruiterName?: string;
 
+    recruiterEmail?: string;
+
     resumeId?: string;
 
     resumeName?: string;
+
+    notes?: string;
 
     notesCount: number;
 
@@ -41,7 +45,7 @@ export interface Application {
 export interface ApplicationNote {
     id: string;
 
-    applicationId: string;
+    applicationId: number;
 
     content: string;
 
@@ -53,7 +57,7 @@ export interface ApplicationNote {
 export interface ApplicationStatusHistory {
     id: string;
 
-    applicationId: string;
+    applicationId: number;
 
     previousStatus: ApplicationStatus;
 

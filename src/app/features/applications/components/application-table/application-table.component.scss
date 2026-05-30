@@ -1,0 +1,128 @@
+:host {
+    display: block;
+    width: 100%;
+}
+
+.application-table {
+    width: 100%;
+}
+
+.application-table__wrapper {
+    width: 100%;
+    overflow-x: auto;
+    border: 1px solid var(--border-color, #e5e7eb);
+    border-radius: 0.75rem;
+    background-color: var(--surface-color, #ffffff);
+}
+
+.application-table__table {
+    width: 100%;
+    border-collapse: collapse;
+    min-width: 900px;
+}
+
+.application-table__table thead {
+    background-color: var(--table-header-background, #f8fafc);
+}
+
+.application-table__table th,
+.application-table__table td {
+    padding: 1rem;
+    text-align: left;
+    vertical-align: middle;
+    border-bottom: 1px solid var(--border-color, #e5e7eb);
+}
+
+.application-table__table tbody tr {
+    transition: background-color 0.2s ease-in-out;
+}
+
+.application-table__table tbody tr:hover {
+    background-color: var(
+        --table-row-hover-background,
+        #f8fafc
+    );
+}
+
+.application-table__table tbody tr:last-child td {
+    border-bottom: none;
+}
+
+.application-table__sort-button {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0;
+    border: none;
+    background: transparent;
+    cursor: pointer;
+    font-size: 0.875rem;
+    font-weight: 600;
+    color: inherit;
+}
+
+.application-table__sort-button:hover {
+    opacity: 0.8;
+}
+
+.application-table__actions-column {
+    width: 220px;
+}
+
+.application-table__actions {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    flex-wrap: wrap;
+}
+
+.application-table__action-button {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-width: 70px;
+    padding: 0.5rem 0.875rem;
+    border: 1px solid var(--border-color, #d1d5db);
+    border-radius: 0.5rem;
+    background-color: transparent;
+    cursor: pointer;
+    font-size: 0.8125rem;
+    font-weight: 500;
+    transition:
+        background-color 0.2s ease,
+        border-color 0.2s ease;
+}
+
+.application-table__action-button:hover {
+    background-color: var(
+        --button-hover-background,
+        #f3f4f6
+    );
+}
+
+.application-table__action-button--danger:hover {
+    border-color: var(
+        --danger-border-color,
+        #ef4444
+    );
+}
+
+@media (max-width: 768px) {
+    .application-table__table {
+        min-width: 700px;
+    }
+
+    .application-table__table th,
+    .application-table__table td {
+        padding: 0.75rem;
+    }
+
+    .application-table__actions {
+        flex-direction: column;
+        align-items: stretch;
+    }
+
+    .application-table__action-button {
+        width: 100%;
+    }
+}
