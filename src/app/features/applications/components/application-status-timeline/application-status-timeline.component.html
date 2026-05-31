@@ -1,1 +1,115 @@
-<p>application-status-timeline works!</p>
+<div class="application-status-timeline">
+
+    <div class="application-status-timeline__header">
+        <h2 class="application-status-timeline__title">
+            Status Timeline
+        </h2>
+    </div>
+
+    <div class="application-status-timeline__progress">
+
+        @for (
+            status of timelineOrder;
+            track status
+        ) {
+            <div
+                class="application-status-timeline__step"
+                [class.application-status-timeline__step--active]="
+                    isCurrentStatus(status)
+                ">
+
+                <div
+                    class="application-status-timeline__indicator">
+                </div>
+
+                <div
+                    class="application-status-timeline__content">
+
+                    <div
+                        class="application-status-timeline__status">
+                        {{ getStatusLabel(status) }}
+                    </div>
+
+                    @if (isCurrentStatus(status)) {
+                        <span
+                            class="application-status-timeline__current">
+                            Current Status
+                        </span>
+                    }
+
+                </div>
+
+            </div>
+        }
+
+    </div>
+
+    @if (history.length > 0) {
+
+        <div class="application-status-timeline__history">
+
+            @for (
+                item of history;
+                track trackByHistory($index, item)
+            ) {
+
+                <div
+                    class="application-status-timeline__history-item">
+
+                    <div
+                        class="application-status-timeline__history-marker">
+                    </div>
+
+                    <div
+                        class="application-status-timeline__history-content">
+
+                        <div
+                            class="application-status-timeline__history-status">
+                            {{ getStatusLabel(item.currentStatus) }}
+                        </div>
+
+                        <div
+                            class="application-status-timeline__history-meta">
+
+                            <span>
+                                {{ item.changedAt }}
+                            </span>
+
+                            @if (item.changedBy) {
+                                <span>
+                                    • {{ item.changedBy }}
+                                </span>
+                            }
+
+                        </div>
+
+                        @if (
+                            item.previousStatus !==
+                            item.currentStatus
+                        ) {
+                            <div
+                                class="application-status-timeline__history-transition">
+                                {{ getStatusLabel(item.previousStatus) }}
+                                →
+                                {{ getStatusLabel(item.currentStatus) }}
+                            </div>
+                        }
+
+                    </div>
+
+                </div>
+
+            }
+
+        </div>
+
+    } @else {
+
+        <div
+            class="application-status-timeline__empty">
+            No status history available.
+        </div>
+
+    }
+
+</div>
